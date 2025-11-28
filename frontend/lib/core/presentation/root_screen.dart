@@ -19,10 +19,10 @@ class NavigationItem {
 
 const List<NavigationItem> _navigationItems = [
   NavigationItem(
-    label: 'Habits',
-    route: '/habits',
-    unselectedIcon: Icons.check_circle_outline,
-    selectedIcon: Icons.check_circle,
+    label: 'Profile',
+    route: '/profile',
+    unselectedIcon: Icons.person_outline,
+    selectedIcon: Icons.person,
   ),
 ];
 
