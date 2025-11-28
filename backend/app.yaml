@@ -1,0 +1,5 @@
+server:
+  port: 3009
+
+database:
+  db_url: "postgres://postgres:postgres@localhost/example"
