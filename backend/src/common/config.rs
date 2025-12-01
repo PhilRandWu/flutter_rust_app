@@ -12,10 +12,21 @@ pub struct DatabaseConfig {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct AuthConfig {
+    pub secret_key: String,
+    pub public_key: String,
+    pub jwt_duration: u64,
+    pub jwt_iss: String,
+    pub jwt_aud: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct AppConfig {
     pub server: ServerConfig,
     pub database: DatabaseConfig,
+    pub auth: AuthConfig,
 }
+
 
 impl AppConfig {
     pub fn from_file(file_path: &str) -> Self {
