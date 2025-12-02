@@ -4,7 +4,6 @@ import 'package:frontend/features/auth/domain/entities/user_entity.dart';
 abstract class AuthState extends Equatable {
   const AuthState();
 
-  xz   
   @override
   List<Object> get props => [];
 }

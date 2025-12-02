@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/core/routes/app_routes.dart';
 import 'package:frontend/features/auth/domain/usecases/login_usecase.dart';
+import 'package:frontend/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/presentation/root_screen.dart';
@@ -15,7 +17,7 @@ import 'features/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -88,10 +90,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authRepository = AuthRepository(baseUrl: 'http://localhost:8000/api');
+    String apiUrl = dotenv.env['API_BASE_URL'] ?? 'http://0.0.0.0:3009';
+    final authRepository = AuthRepository(baseUrl: apiUrl);
 
     return BlocProvider(
-      create: (_) => AuthBloc(loginUseCase: LoginUseCase(authRepository)),
+      create: (_) => AuthBloc(
+        loginUseCase: LoginUseCase(authRepository),
+        signupUseCase: SignupUseCase(authRepository),
+      ),
       child: MaterialApp.router(
         debugShowCheckedModeBanner: true, // 隐藏 Debug 横幅
         routerConfig: _router,
