@@ -6,6 +6,7 @@ use crate::modules::auth::handler::{health_check_handler, signin_handler, signup
 pub mod handler;
 pub mod service;
 mod dto;
+mod tests;
 
 pub fn auth_router(state: AppState) -> Router {
     Router::new()

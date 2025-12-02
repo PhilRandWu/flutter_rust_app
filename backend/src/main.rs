@@ -1,6 +1,9 @@
 use anyhow::Result;
-use backend::{get_router, AppState};
+use axum::http;
+use axum::http::HeaderName;
+use backend::{AppState, get_router};
 use tokio::net::TcpListener;
+use tower_http::cors::{AllowHeaders, AllowMethods, AllowOrigin, CorsLayer};
 use tracing::info;
 use tracing_appender::rolling;
 use tracing_subscriber::layer::SubscriberExt;
@@ -28,6 +31,26 @@ async fn main() -> Result<()> {
 
     let state = AppState::init_state().await?;
     let app = get_router(state.clone()).await?;
+
+    let cors_layer = CorsLayer::new()
+        .allow_origin(AllowOrigin::exact("http://localhost:56996".parse()?))
+        .allow_methods(AllowMethods::list([
+            http::Method::GET,
+            http::Method::POST,
+            http::Method::PUT,
+            http::Method::DELETE,
+            http::Method::OPTIONS, 
+            http::Method::PATCH,   
+        ]))
+        .allow_headers(AllowHeaders::list([
+            HeaderName::from_static("content-type"),
+            HeaderName::from_static("authorization"),
+            HeaderName::from_static("x-requested-with"),
+            HeaderName::from_static("accept"),
+        ]))
+        .allow_credentials(true);
+
+    let app = app.layer(cors_layer);
 
     let addr = format!("0.0.0.0:{}", &state.config.server.port);
     let listener = TcpListener::bind(&addr).await?;

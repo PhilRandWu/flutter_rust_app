@@ -1,4 +1,3 @@
-use std::os::macos::raw::stat;
 use crate::AppState;
 use crate::common::error::AppError;
 use crate::modules::auth::dto::{TokenRequest, TokenResponse};

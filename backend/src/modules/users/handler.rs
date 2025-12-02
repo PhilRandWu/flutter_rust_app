@@ -5,7 +5,7 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Extension, Json, Router};
-use serde_json::json;
+// use serde_json::json;
 
 pub fn users_router(state: AppState) -> Router {
     Router::new()
