@@ -20,15 +20,19 @@ impl TokenRequest {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TokenResponse {
-    pub token: String,
+    pub access_token: String,
+    pub refresh_token: String,
     pub token_type: Option<String>,
+    pub expires_in: i64,
 }
 
 impl TokenResponse {
-    pub fn new(token: &str) -> Self {
+    pub fn new(access_token: &str, refresh_token: &str, expires_in: i64) -> Self {
         Self {
-            token: token.to_string(),
+            access_token: access_token.to_string(),
+            refresh_token: refresh_token.to_string(),
             token_type: Some("Bearer".to_string()),
+            expires_in,
         }
     }
 }
@@ -36,8 +40,10 @@ impl TokenResponse {
 impl Default for TokenResponse {
     fn default() -> Self {
         Self {
-            token: "".to_string(),
+            access_token: "".to_string(),
+            refresh_token: "".to_string(),
             token_type: Some("Bearer".to_string()),
+            expires_in: -1,
         }
     }
 }

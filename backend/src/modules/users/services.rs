@@ -1,7 +1,11 @@
 use crate::AppState;
 use crate::common::auth::hash_password;
 use crate::common::error::AppError;
-use crate::modules::users::{entity::UserInfo, dto::{CreateUser, User}};
+use crate::modules::users::dto::UserToken;
+use crate::modules::users::{
+    dto::{CreateUser, User},
+    entity::UserInfo,
+};
 use chrono::Utc;
 
 impl AppState {
@@ -99,5 +103,23 @@ FROM users WHERE username = $1
 
         let user = self.get_user_obj_by_user_info(user_info).await?;
         Ok(user)
+    }
+
+    pub async fn save_user_token(&self, user_token: UserToken) -> Result<(), AppError> {
+        sqlx::query(
+            r#"
+        INSERT INTO user_tokens (id, user_id, token_id, expires_at)
+        VALUES ($1, $2, $3, $4)
+        "#,
+        )
+        .bind(&user_token.id)
+        .bind(&user_token.user_id)
+        .bind(&user_token.token_id)
+        .bind(&user_token.expires_at)
+        .execute(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(format!("Failed to save user token: {}", err)))?;
+
+        Ok(())
     }
 }

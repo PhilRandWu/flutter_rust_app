@@ -1,4 +1,7 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
+use uuid::Uuid;
 use validator::Validate;
 use crate::modules::users::entity::UserInfo;
 
@@ -18,7 +21,7 @@ pub struct CreateUser {
     pub password: String,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, FromRow)]
 pub struct User {
     pub user_info: UserInfo,
 }
@@ -27,6 +30,25 @@ impl User {
     pub fn new(user_info: UserInfo) -> Self {
         Self {
             user_info,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, FromRow, Clone)]
+pub struct UserToken {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub token_id: String, // 对应 JWT 的 jti
+    pub expires_at: DateTime<Utc>,
+}
+
+impl UserToken {
+    pub fn new(user_id: Uuid, token_id: String, expires_at: DateTime<Utc>) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            user_id,
+            token_id,
+            expires_at,
         }
     }
 }

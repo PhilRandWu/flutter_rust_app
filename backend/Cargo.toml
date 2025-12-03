@@ -13,11 +13,11 @@ tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"]}
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.17"
-sqlx = { version = "0.8.6", features = ["uuid","chrono", "postgres", "runtime-tokio", "tls-rustls"]}
+sqlx = { version = "0.8.6", features = ["uuid","chrono", "postgres", "runtime-tokio", "tls-rustls", "macros"]}
 chrono = { version = "0.4.42", features = ["serde"]}
 validator = { version = "0.20.0", features = ["derive"]}
 argon2 = { version = "0.5.3", features = ["std"]}
-uuid = { version = "1.18.1", features = ["serde"]}
+uuid = { version = "1.18.1", features = ["serde", "v4"]}
 tower-http = { version = "0.6.7", features = ["cors"]}
 axum-extra = { version = "0.12.2", features = ["typed-header"]}
 anyhow = "1.0.100"

@@ -16,6 +16,7 @@ pub struct AuthConfig {
     pub secret_key: String,
     pub public_key: String,
     pub jwt_duration: u64,
+    pub refresh_token_duration: u64,
     pub jwt_iss: String,
     pub jwt_aud: String,
 }

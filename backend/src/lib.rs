@@ -1,12 +1,10 @@
-use crate::common::config::AppConfig;
-use crate::common::error::AppError;
-use crate::modules::auth::auth_router;
+use crate::common::{config::AppConfig, error::AppError};
+use crate::modules::auth::{auth_router, middleware::auth_middleware};
 use crate::modules::users::handler::users_router;
 use anyhow::Result;
-use axum::Router;
+use axum::{Router, middleware::from_fn_with_state};
 use sqlx::PgPool;
-use std::ops::Deref;
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 pub mod common;
 pub mod modules;
@@ -14,7 +12,7 @@ pub mod modules;
 pub async fn get_router(state: AppState) -> Result<Router, AppError> {
     let router = Router::new()
         .nest("/users", users_router(state.clone()))
-        // .layer(from_fn_with_state(state.clone(), auth_middleware))
+        .layer(from_fn_with_state(state.clone(), auth_middleware))
         .nest("/auth", auth_router(state.clone()));
     Ok(router)
 }
@@ -58,7 +56,7 @@ mod test_util {
     use crate::common::config::AppConfig;
     use crate::common::error::AppError;
     use crate::{AppState, AppStateInner};
-    use sqlx::{Executor, PgPool};
+    use sqlx::Executor;
     use sqlx_db_tester::TestPg;
     use std::sync::Arc;
 

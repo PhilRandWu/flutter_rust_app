@@ -10,7 +10,7 @@ mod util_tests {
         let (_tdb, state) = AppState::init_test_state().await?;
 
         let token = state.get_token("alice", "123456").await?;
-        assert!(!token.token.is_empty());
+        assert!(!token.access_token.is_empty());
         Ok(())
     }
 
@@ -29,7 +29,7 @@ mod integration_tests {
     use crate::{AppState, get_router};
     use anyhow::Result;
     use axum::http::StatusCode;
-    use axum::{Router, ServiceExt};
+    use axum::Router;
     use reqwest::Client;
     use serde_json::json;
     use serial_test::serial;

@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
     let app = get_router(state.clone()).await?;
 
     let cors_layer = CorsLayer::new()
-        .allow_origin(AllowOrigin::exact("http://localhost:56996".parse()?))
+        .allow_origin(AllowOrigin::exact("http://localhost:64195".parse()?))
         .allow_methods(AllowMethods::list([
             http::Method::GET,
             http::Method::POST,

@@ -1,5 +1,5 @@
 use crate::AppState;
-use crate::common::auth::verify;
+use crate::common::auth::{verify_access_token};
 use axum::http::StatusCode;
 use axum::{
     body::Body,
@@ -25,7 +25,7 @@ pub async fn auth_middleware(
     {
         Ok(TypedHeader(Authorization(Bearer))) => {
             let token = Bearer.token();
-            match verify(token).await {
+            match verify_access_token(token).await {
                 Ok(user) => {
                     let mut req = Request::from_parts(parts, body);
                     let user = match state.get_user_by_username(&user.user_info.username).await {
