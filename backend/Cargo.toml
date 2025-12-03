@@ -2,9 +2,9 @@
 name = "backend"
 version = "0.1.0"
 edition = "2024"
+build="build.rs"
 
 [dependencies]
-anyhow = "1.0.100"
 axum = { version = "0.8.7", features = ["query", "http2", "tracing", "multipart"]}
 serde_yaml = "0.9.34"
 tokio = { version = "1.48.0", features = ["rt", "rt-multi-thread", "macros"]}
@@ -17,12 +17,18 @@ sqlx = { version = "0.8.6", features = ["uuid","chrono", "postgres", "runtime-to
 chrono = { version = "0.4.42", features = ["serde"]}
 validator = { version = "0.20.0", features = ["derive"]}
 argon2 = { version = "0.5.3", features = ["std"]}
-jwt-simple = "0.12.13"
 uuid = { version = "1.18.1", features = ["serde"]}
 tower-http = { version = "0.6.7", features = ["cors"]}
+axum-extra = { version = "0.12.2", features = ["typed-header"]}
+anyhow = "1.0.100"
+jwt-simple = "0.12.13"
 
 [dev-dependencies]
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls"]}
 serde_json = "1.0.145"
 serial_test = "3.2.0"
 sqlx-db-tester = "0.7.1"
+
+[build-dependencies]
+anyhow = "1.0.100"
+jwt-simple = "0.12.13"

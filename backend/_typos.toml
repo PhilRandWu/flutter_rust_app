@@ -1,0 +1,5 @@
+# _typos.toml
+[default.extend-words]  # 自定义允许的单词（避免拼写检查误判）
+
+[files]
+extend-exclude = ["CHANGELOG.md", "fixtures/*"]  # 拼写检查时排除的文件/目录

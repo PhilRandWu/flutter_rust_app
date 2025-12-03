@@ -1,10 +1,8 @@
 use crate::AppState;
 use crate::common::auth::hash_password;
 use crate::common::error::AppError;
-use crate::modules::users::dto::{CreateUser, User};
-use crate::modules::users::entity::UserInfo;
+use crate::modules::users::{entity::UserInfo, dto::{CreateUser, User}};
 use chrono::Utc;
-use std::os::macos::raw::stat;
 
 impl AppState {
     pub async fn create_user(&self, input: CreateUser) -> Result<User, AppError> {
@@ -75,7 +73,7 @@ FROM users WHERE username = $1
         .bind(&username)
         .fetch_one(&self.pool)
         .await
-        .map_err(|err| AppError::NotFound(format!("User {} not found", username)))?;
+        .map_err(|_err| AppError::NotFound(format!("User {} not found", username)))?;
 
         let user = self.get_user_obj_by_user_info(user_info).await?;
         Ok(user)
@@ -83,6 +81,23 @@ FROM users WHERE username = $1
 
     pub async fn get_user_obj_by_user_info(&self, user_info: UserInfo) -> Result<User, AppError> {
         let user = User::new(user_info);
+        Ok(user)
+    }
+
+    pub async fn get_user_by_username(&self, username: &str) -> Result<User, AppError> {
+        let user_info: UserInfo = sqlx::query_as(
+            r#"
+      SELECT id, username, created_at, updated_at
+      FROM users
+      WHERE username = $1
+      "#,
+        )
+        .bind(username)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|_| AppError::NotFound(format!("User: {} not found", username)))?;
+
+        let user = self.get_user_obj_by_user_info(user_info).await?;
         Ok(user)
     }
 }

@@ -9,7 +9,6 @@ abstract class Failure extends Equatable {
   List<Object?> get props => [message];
 }
 
-
 class ServerFailure extends Failure {
-  const ServerFailure({required String message}) : super(message: message);
+  const ServerFailure({required super.message});
 }

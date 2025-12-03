@@ -1,11 +1,8 @@
 use crate::AppState;
 use crate::common::error::AppError;
-use crate::modules::auth::dto::{TokenRequest, TokenResponse};
+use crate::modules::auth::dto::TokenRequest;
 use crate::modules::users::dto::CreateUser;
-use axum::Json;
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use serde::Serialize;
 use tracing::info;
 use validator::Validate;
@@ -42,6 +39,8 @@ pub async fn signin_handler(
 ) -> Result<impl IntoResponse, AppError> {
     payload.validate()?;
     info!("Auth Handler::get token: username: {:?}", payload.username);
-    let token = state.get_token(&payload.username, &payload.password).await?;
+    let token = state
+        .get_token(&payload.username, &payload.password)
+        .await?;
     Ok((StatusCode::OK, Json(token)))
 }

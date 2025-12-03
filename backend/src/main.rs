@@ -1,14 +1,11 @@
 use anyhow::Result;
-use axum::http;
-use axum::http::HeaderName;
+use axum::http::{self, HeaderName};
 use backend::{AppState, get_router};
 use tokio::net::TcpListener;
 use tower_http::cors::{AllowHeaders, AllowMethods, AllowOrigin, CorsLayer};
 use tracing::info;
 use tracing_appender::rolling;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{EnvFilter, Layer, fmt};
+use tracing_subscriber::{EnvFilter, Layer, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -39,8 +36,8 @@ async fn main() -> Result<()> {
             http::Method::POST,
             http::Method::PUT,
             http::Method::DELETE,
-            http::Method::OPTIONS, 
-            http::Method::PATCH,   
+            http::Method::OPTIONS,
+            http::Method::PATCH,
         ]))
         .allow_headers(AllowHeaders::list([
             HeaderName::from_static("content-type"),
