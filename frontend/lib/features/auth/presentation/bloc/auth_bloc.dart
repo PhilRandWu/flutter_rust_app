@@ -9,9 +9,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignupUseCase signupUseCase;
 
   AuthBloc({required this.loginUseCase, required this.signupUseCase})
-    : super(AuthInitial()) {
+    : super(AuthUnauthenticated()) {
     on<AuthLoginRequested>(_onLoginRequested);
-    on<AuthSignupRequested>(_onSignupRequested);
+    on<AuthLogoutRequested>(_onLogoutRequested);
+    // on<AuthSignupRequested>(_onSignupRequested);
   }
 
   void _onLoginRequested(
@@ -20,22 +21,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     final result = await loginUseCase.login(event.username, event.password);
-    result.fold((failure) => emit(AuthFailure(message: failure.message)), (
-      user,
-    ) {
-      emit(AuthAuthenticated(user: user));
-    });
+    result.fold((userTokenEntity) {
+      emit(
+        AuthAuthenticated(
+          accessToken: userTokenEntity.accessToken,
+          refreshToken: userTokenEntity.refreshToken,
+          expiresIn: userTokenEntity.expiresIn,
+        ),
+      );
+    }, (failure) => emit(AuthFailure(message: failure.message)));
   }
 
-  void _onSignupRequested(
-    AuthSignupRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    final result = await signupUseCase.signup(event.username, event.password);
-    result.fold(
-      (failure) => emit(AuthFailure(message: failure.message)),
-      (user) => emit(AuthAuthenticated(user: user)),
-    );
+  void _onLogoutRequested(
+      AuthLogoutRequested event,
+      Emitter<AuthState> emit
+      ) {
+    emit(AuthUnauthenticated());
   }
+
+  // void _onSignupRequested(
+  //   AuthSignupRequested event,
+  //   Emitter<AuthState> emit,
+  // ) async {
+  //   emit(AuthLoading());
+  //   final result = await signupUseCase.signup(event.username, event.password);
+  //   result.fold(
+  //     (failure) => emit(AuthFailure(message: failure.message)),
+  //     (user) => emit(AuthAuthenticated(user: user)),
+  //   );
+  // }
 }

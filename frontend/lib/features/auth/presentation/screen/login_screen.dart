@@ -13,6 +13,8 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,81 +41,85 @@ class LoginScreen extends StatelessWidget {
                       child: CircularProgressIndicator(color: Colors.white),
                     );
                   }
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 100, width: 100, child: Placeholder()),
-                      SizedBox(height: 40),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 1.0,
-                            color: Colors.blue.shade200,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(30.0),
-                          child: Column(
-                            children: [
-                              CustomTextField(
-                                controller: _usernameController,
-                                label: 'Username',
-                              ),
-                              SizedBox(height: 16),
-                              CustomTextField(
-                                controller: _passwordController,
-                                label: 'Password',
-                                obscureText: true,
-                              ),
-                              SizedBox(height: 24),
-                              SubmitButton(
-                                text: 'Login',
-                                onPressed: () {
-                                  BlocProvider.of<AuthBloc>(context).add(
-                                    AuthLoginRequested(
-                                      username: _usernameController.text,
-                                      password: _passwordController.text,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          context.go('/');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text('Come back'),
-                      ),
-                      SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () {
-                          context.go('/signup');
-                        },
-                        child: Text(
-                          'No account? Create one',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  );
+                  return _buildLoginViewScreen(context);
                 },
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoginViewScreen(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 100, width: 100, child: Placeholder()),
+        SizedBox(height: 40),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(
+              width: 1.0,
+              color: Colors.blue.shade200,
+            ),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              children: [
+                CustomTextField(
+                  controller: _usernameController,
+                  label: 'Username',
+                ),
+                SizedBox(height: 16),
+                CustomTextField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  obscureText: true,
+                ),
+                SizedBox(height: 24),
+                SubmitButton(
+                  text: 'Login',
+                  onPressed: () {
+                    BlocProvider.of<AuthBloc>(context).add(
+                      AuthLoginRequested(
+                        username: _usernameController.text,
+                        password: _passwordController.text,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            context.go('/');
+          },
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: Text('Come back'),
+        ),
+        SizedBox(height: 16),
+        TextButton(
+          onPressed: () {
+            context.go('/signup');
+          },
+          child: Text(
+            'No account? Create one',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

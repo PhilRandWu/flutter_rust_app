@@ -7,7 +7,7 @@ import 'package:frontend/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/presentation/root_screen.dart';
-import 'features/auth/data/repositories/auth_reposeitory.dart';
+import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screen/login_screen.dart';
@@ -61,7 +61,7 @@ final _router = GoRouter(
 
     ShellRoute(
       builder: (BuildContext context, GoRouterState state, Widget child) =>
-          RootScreen(),
+          RootScreen(child: child),
       routes: [
         GoRoute(
           path: AppRoutes.home,

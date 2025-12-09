@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:frontend/features/auth/data/repositories/auth_reposeitory.dart';
+import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
 import 'package:frontend/features/auth/domain/entities/user_entity.dart';
+import 'package:frontend/features/auth/domain/entities/user_token_entity.dart';
 import 'package:frontend/features/auth/domain/errors/failures.dart';
 
 class LoginUseCase {
@@ -8,16 +9,25 @@ class LoginUseCase {
 
   LoginUseCase(this.authRepository);
 
-  Future<Either<Failure, UserEntity>> login(String username, String password) async {
+  Future<Either<UserTokenEntity, Failure>> login(
+    String username,
+    String password,
+  ) async {
     try {
-      final userModal = await authRepository.login(username: username, password: password);
+      final result = await authRepository.login(
+        username: username,
+        password: password,
+      );
 
-      return Right(UserEntity(
-          id: userModal.id,
-          username: username
-      ));
+      return Left(
+        UserTokenEntity(
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          expiresIn: result.expiresIn,
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Right(ServerFailure(message: e.toString()));
     }
   }
 }

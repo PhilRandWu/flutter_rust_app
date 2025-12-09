@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:frontend/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -8,17 +7,23 @@ abstract class AuthState extends Equatable {
   List<Object> get props => [];
 }
 
-class AuthInitial extends AuthState {}
+class AuthUnauthenticated extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
-  final UserEntity user;
+  final String accessToken;
+  final String refreshToken;
+  final int expiresIn;
 
-  const AuthAuthenticated({required this.user});
+  const AuthAuthenticated({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.expiresIn,
+  });
 
   @override
-  List<Object> get props => [user];
+  List<Object> get props => [accessToken, refreshToken, expiresIn];
 }
 
 class AuthFailure extends AuthState {

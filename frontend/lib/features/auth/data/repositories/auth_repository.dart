@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/features/auth/data/models/user_modal.dart'
     show UserModel;
+import 'package:frontend/features/auth/data/models/user_token_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRepository {
@@ -9,11 +10,10 @@ class AuthRepository {
 
   AuthRepository({required this.baseUrl});
 
-  Future<UserModel> login({
+  Future<UserTokenModel> login({
     required String username,
     required String password,
   }) async {
-
     final url = Uri.parse('$baseUrl/auth/signin');
     final response = await http.post(
       url,
@@ -23,7 +23,7 @@ class AuthRepository {
 
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
-      return UserModel.fromJson(jsonBody['user']);
+      return UserTokenModel.fromJson(jsonBody);
     } else {
       throw Exception('Invalid username or password');
     }
