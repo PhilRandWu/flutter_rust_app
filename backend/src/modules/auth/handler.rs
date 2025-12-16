@@ -12,16 +12,7 @@ pub struct HealthCheckResponse {
     pub message: &'static str,
 }
 
-pub async fn health_check_handler(
-    State(_state): State<AppState>,
-) -> Result<impl IntoResponse, AppError> {
-    const MESSAGE: &str = "How to Implement Two-Factor Authentication (2FA) in Rust";
 
-    Ok((
-        StatusCode::OK,
-        Json(HealthCheckResponse { message: MESSAGE }),
-    ))
-}
 
 pub async fn signup_handler(
     State(state): State<AppState>,

@@ -5,12 +5,14 @@ use anyhow::Result;
 use axum::{Router, middleware::from_fn_with_state};
 use sqlx::PgPool;
 use std::{ops::Deref, sync::Arc};
+use crate::modules::health::health_router;
 
 pub mod common;
 pub mod modules;
 
 pub async fn get_router(state: AppState) -> Result<Router, AppError> {
     let router = Router::new()
+        .merge(health_router(state.clone()))
         .nest("/users", users_router(state.clone()))
         .layer(from_fn_with_state(state.clone(), auth_middleware))
         .nest("/auth", auth_router(state.clone()));
