@@ -1,11 +1,11 @@
 use crate::common::{config::AppConfig, error::AppError};
 use crate::modules::auth::{auth_router, middleware::auth_middleware};
-use crate::modules::users::handler::users_router;
 use anyhow::Result;
 use axum::{Router, middleware::from_fn_with_state};
 use sqlx::PgPool;
 use std::{ops::Deref, sync::Arc};
 use crate::modules::health::health_router;
+use crate::modules::users::users_router;
 
 pub mod common;
 pub mod modules;

@@ -8,5 +8,6 @@ auth:
   secret_key: "fixtures/private_key.pem"
   public_key: "fixtures/public_key.pem"
   jwt_duration: 86400 # 24 hours
+  refresh_token_duration: 604800 # refresh token 有效期（7天）
   jwt_iss: "my_service"
   jwt_aud: "my_app"

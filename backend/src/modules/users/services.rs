@@ -1,7 +1,7 @@
 use crate::AppState;
 use crate::common::auth::hash_password;
 use crate::common::error::AppError;
-use crate::modules::users::dto::UserToken;
+use crate::modules::users::dto::{PaginatedUsers, UserToken};
 use crate::modules::users::{
     dto::{CreateUser, User},
     entity::UserInfo,
@@ -121,5 +121,117 @@ FROM users WHERE username = $1
         .map_err(|err| AppError::DatabaseError(format!("Failed to save user token: {}", err)))?;
 
         Ok(())
+    }
+
+    pub async fn get_users(&self, limit: i64, offset: i64) -> Result<PaginatedUsers, AppError> {
+        let users_info = sqlx::query_as::<_, UserInfo>(
+            r#"
+      SELECT id, username, created_at, updated_at
+      FROM users
+      ORDER BY id
+      LIMIT $1
+      OFFSET $2
+      "#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(err.to_string()))?;
+
+        if users_info.is_empty() {
+            let total_count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM users")
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|err| AppError::DatabaseError(err.to_string()))?;
+
+            return Ok(PaginatedUsers {
+                users: vec![],
+                total_count: total_count.0,
+            });
+        }
+
+        let users: Vec<User> = users_info
+            .into_iter()
+            .map(|user_info| {
+                User::new(UserInfo {
+                    password: String::new(),
+                    ..user_info
+                })
+            })
+            .collect();
+        let total_count: (i64,) = sqlx::query_as(
+            r#"
+      SELECT COUNT(*)
+      FROM users
+      "#,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(err.to_string()))?;
+
+        Ok(PaginatedUsers {
+            users,
+            total_count: total_count.0,
+        })
+    }
+
+    pub async fn get_user_by_id(&self, user_id: i32) -> Result<User, AppError> {
+        let user_info: UserInfo = sqlx::query_as(
+            r#"
+                SELECT id, username, created_at, updated_at
+                FROM users
+                WHERE id = $1
+                "#,
+        )
+        .bind(user_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(err.to_string()))?
+        .ok_or(AppError::NotFound(format!("User {} not found", user_id)))?;
+
+        let user = self.get_user_obj_by_user_info(user_info).await?;
+        Ok(user)
+    }
+
+    pub async fn is_user_exist_by_id(&self, user_id: i32) -> Result<bool, AppError> {
+        let result = sqlx::query_scalar(
+            r#"
+            SELECT EXISTS (
+              SELECT 1
+              FROM users
+              WHERE id = $1
+            )
+            "#,
+        )
+        .bind(user_id)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(err.to_string()))?;
+        Ok(result)
+    }
+
+    pub async fn delete_user(&self, user_id: i32) -> Result<(), AppError> {
+        match self.is_user_exist_by_id(user_id).await? {
+            true => (),
+            false => return Err(AppError::NotFound(format!("User {} not found", user_id))),
+        }
+
+        let result = sqlx::query(
+            r#"
+    DELETE FROM users
+    WHERE id = $1
+    RETURNING id, username, created_at, updated_at
+    "#,
+        )
+        .bind(user_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|err| AppError::DatabaseError(err.to_string()))?;
+
+        match result {
+            Some(_) => Ok(()),
+            None => Err(AppError::NotFound(format!("User {} not found", user_id))),
+        }
     }
 }
