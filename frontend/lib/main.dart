@@ -93,6 +93,10 @@ class MyApp extends StatelessWidget {
     String apiUrl = dotenv.env['API_BASE_URL'] ?? 'http://0.0.0.0:3009';
     final authRepository = AuthRepository(baseUrl: apiUrl);
 
+    final Brightness brightness = MediaQuery.of(context).platformBrightness;
+
+    ThemeData themeData = brightness == Brightness.dark ? DarkAppTheme().themeData : LightAppTheme().themeData;
+
     return BlocProvider(
       create: (_) => AuthBloc(
         loginUseCase: LoginUseCase(authRepository),
@@ -100,6 +104,7 @@ class MyApp extends StatelessWidget {
       ),
       child: MaterialApp.router(
         debugShowCheckedModeBanner: true, // 隐藏 Debug 横幅
+        theme: themeData,
         routerConfig: _router,
       ),
     );
