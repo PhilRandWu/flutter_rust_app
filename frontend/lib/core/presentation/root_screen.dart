@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/constants/app_colors.dart';
 import 'package:frontend/core/routes/app_routes.dart';
 import 'package:frontend/core/themes/app_theme.dart';
+import 'package:frontend/core/themes/extensions.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
-import 'package:frontend/features/profile/profile_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class NavigationItem {
@@ -53,34 +53,26 @@ class _RootScreenState extends State<RootScreen> {
     final bool isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final int selectedIndex = 0;
 
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: AppColors.statusBarColor,
-        systemNavigationBarColor: AppColors.systemNavigationBarColor,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: _AppBarTitle(),
-        backgroundColor: AppTheme.lightTheme.primaryColor,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: AppColors.systemNavigationBarColor,
-        ),
-        elevation: 2,
-        shadowColor: AppColors.opacity10,
+        backgroundColor: context.colors.primary,
       ),
-      body: DecoratedBox(
-        decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: Row(
-          children: [
-            if (isLargeScreen) _buildNavigationRail(selectedIndex),
-            Expanded(child: widget.child),
-          ],
-        ),
+      body: Row(
+        children: [
+          if (isLargeScreen)
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [context.colors.primary, context.colors.secondary],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: _buildNavigationRail(selectedIndex),
+            ),
+          Expanded(child: widget.child),
+        ],
       ),
       bottomNavigationBar: isLargeScreen
           ? null
@@ -90,23 +82,22 @@ class _RootScreenState extends State<RootScreen> {
 
   Widget _buildNavigationRail(int selectedIndex) {
     return NavigationRail(
-      backgroundColor: AppColors.navigationBackground,
+      backgroundColor: Colors.transparent,
+      indicatorColor: context.colors.background,
+      useIndicator: true,
       unselectedLabelTextStyle: TextStyle(
-        color: AppColors.navigationUnselected,
+        color: context.colors.textOnPrimary,
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
       selectedLabelTextStyle: TextStyle(
-        color: AppColors.navigationSelectedText,
+        color: context.colors.textOnPrimary,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
-      selectedIconTheme: IconThemeData(
-        color: AppColors.navigationSelectedIcon,
-        size: 24,
-      ),
+      selectedIconTheme: IconThemeData(color: context.colors.primary, size: 24),
       unselectedIconTheme: IconThemeData(
-        color: AppColors.navigationUnselected,
+        color: context.colors.textOnPrimary,
         size: 22,
       ),
       groupAlignment: 0.0,
@@ -140,15 +131,15 @@ class _RootScreenState extends State<RootScreen> {
         },
         icon: const Icon(Icons.settings),
         iconSize: 24,
-        color: AppColors.navigationUnselected,
+        color: context.colors.textOnPrimary,
         selectedIcon: Icon(
           Icons.settings,
-          color: AppColors.navigationSelectedIcon,
+          color: context.colors.primary
         ),
         tooltip: 'Settings',
         splashRadius: 24,
-        hoverColor: AppColors.secondaryLight.withOpacity(0.1),
-        splashColor: AppColors.secondaryLight.withOpacity(0.3),
+        hoverColor: context.colors.primary.withOpacity(0.1),
+        splashColor: context.colors.primary.withOpacity(0.3),
       ),
     );
   }
@@ -168,7 +159,7 @@ class _RootScreenState extends State<RootScreen> {
         ),
       ),
       child: NavigationBar(
-        backgroundColor: AppTheme.lightTheme.primaryColor,
+        // backgroundColor: AppTheme.lightTheme.primaryColor,
         indicatorColor: Colors.white,
         selectedIndex: selectIndex,
         onDestinationSelected: _onItemTapped,
@@ -192,31 +183,32 @@ class _AppBarTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [_buildAppName(), Spacer(), _buildLogoutButton(context)],
+      children: [_buildAppName(context), Spacer(), _buildLogoutButton(context)],
     );
   }
 
-  Widget _buildAppName() {
-    return Row(
-      children: [
-        Text(
-          'Really',
-          style: TextStyle(
-            color: AppColors.textInverse,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+  Widget _buildAppName(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        context.go(AppRoutes.home);
+      },
+      child: Row(
+        children: [
+          Text(
+            'Really',
+            style: context.typographies.headingSmall.copyWith(
+              color: context.colors.background,
+            ),
           ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          'Stick',
-          style: TextStyle(
-            color: AppColors.secondaryLight,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+          const SizedBox(width: 4),
+          Text(
+            'Stick',
+            style: context.typographies.headingSmall.copyWith(
+              color: context.colors.hint,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -234,6 +226,7 @@ class _AppBarTitle extends StatelessWidget {
         onPressed: () {
           BlocProvider.of<AuthBloc>(context).add(AuthLogoutRequested());
         },
+        style: context.styles.buttonMedium,
         child: Text("Logout"),
       ),
     );
