@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/constants/app_colors.dart';
-import 'package:frontend/core/themes/app_theme.dart';
+import 'package:frontend/core/ui/app_theme.dart';
+import 'package:frontend/core/ui/colors/app_colors.dart';
+import 'package:frontend/core/ui/styles/styles.dart';
 
 class DarkAppTheme extends AppTheme {
   const DarkAppTheme()
@@ -25,14 +26,14 @@ class DarkAppTheme extends AppTheme {
       border: Color(0x33FFFFFF),
       hint: Color(0x99FFFFFF),
     ),
-    // styles: const AppThemeStyles(
-    //   cardShadow: [
-    //     BoxShadow(
-    //       color: Color(0x4D000000),
-    //       offset: Offset(0, 8),
-    //       blurRadius: 23,
-    //     ),
-    //   ],
-    // ),
+    styles: const AppThemeStyles(
+      cardShadow: [
+        BoxShadow(
+          color: Color(0x4D000000),
+          offset: Offset(0, 8),
+          blurRadius: 23,
+        ),
+      ],
+    ),
   );
 }
