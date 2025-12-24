@@ -1,42 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/constants/app_colors.dart';
-import 'package:frontend/core/themes/app_theme.dart';
+import 'package:frontend/core/widgets/icon_with_warning.dart';
+import 'package:frontend/features/profile/screen/about_screen.dart';
+import 'package:frontend/features/profile/screen/device_screen.dart';
+import 'package:frontend/features/profile/screen/theme_selection_screen.dart';
+import 'package:frontend/l10n/app_localizations.dart';
+
+import 'language_selection_screen.dart';
 
 enum SettingsOption { language, theme, devices, about }
-
-class IconWithWarning extends StatelessWidget {
-  final IconData iconData;
-  final bool shouldBeWarning;
-
-  const IconWithWarning({
-    super.key,
-    required this.iconData,
-    required this.shouldBeWarning,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Icon(iconData),
-        if (shouldBeWarning)
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -63,13 +34,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildContent() {
     switch (_selectedOption) {
       case SettingsOption.language:
-        return Text("language");
+        return LocaleSelectionScreen();
       case SettingsOption.theme:
-        return Text("theme");
+        return ThemeSelectionScreen();
       case SettingsOption.devices:
-        return Text("devices");
+        return DeviceScreen();
       case SettingsOption.about:
-        return Text("about");
+        return AboutScreen();
     }
   }
 
@@ -80,9 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(
           width: 200,
           child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
+            decoration: BoxDecoration(color: Colors.white),
             child: Column(
               children: [
                 Padding(
@@ -91,10 +60,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     vertical: 24,
                   ),
                   child: Text(
-                    "Settings",
+                    AppLocalizations.of(context).profileSettings,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      // color: AppThemeColors.textPrimary,
                     ),
                   ),
                 ),
@@ -104,22 +73,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: EdgeInsets.zero,
                     children: [
                       _buildNavItem(
-                        label: "language",
+                        label: AppLocalizations.of(context).language,
                         icon: Icons.language,
                         option: SettingsOption.language,
                       ),
                       _buildNavItem(
-                        label: "theme",
+                        label: AppLocalizations.of(context).theme,
                         icon: Icons.color_lens,
                         option: SettingsOption.theme,
                       ),
                       _buildNavItem(
-                        label: "devices",
+                        label: AppLocalizations.of(context).devices,
                         icon: Icons.devices,
                         option: SettingsOption.devices,
                       ),
                       _buildNavItem(
-                        label: "about",
+                        label: AppLocalizations.of(context).about,
                         icon: Icons.info,
                         option: SettingsOption.about,
                       ),
@@ -148,8 +117,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? IconWithWarning(iconData: icon, shouldBeWarning: true)
           : Icon(icon),
       selected: isSelected,
-      selectedTileColor: AppColors.secondaryLight.withOpacity(0.1),
-      selectedColor: AppTheme.lightTheme.primaryColor,
+      // selectedTileColor: AppThemeColors.secondaryLight.withOpacity(0.1),
+      // selectedColor: AppTheme.lightTheme.primaryColor,
       onTap: () => _selectOption(option),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
