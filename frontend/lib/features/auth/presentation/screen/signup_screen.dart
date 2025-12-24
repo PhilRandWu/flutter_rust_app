@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/routes/app_routes.dart';
+import 'package:frontend/core/widgets/global_snack_bar.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
-import 'package:frontend/features/auth/presentation/widgets/backgroud.dart';
-import 'package:frontend/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:frontend/features/auth/presentation/widgets/background.dart';
+import 'package:frontend/core/widgets/custom_text_field.dart';
 import 'package:frontend/features/auth/presentation/widgets/submit_button.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class SignupScreen extends StatelessWidget {
@@ -24,18 +27,15 @@ class SignupScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: BlocListener<AuthBloc, AuthState>(
               listener: (context, state) {
-                if (state is AuthAuthenticated) {
-                  context.go('/recovery-codes');
-                }
-                if (state is AuthFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                if (state is AuthAuthenticatedState) {
+                  context.go(AppRoutes.home);
+                } else {
+                  GlobalSnackBar.show(context, state.message);
                 }
               },
               child: BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
-                  if (state is AuthLoading) {
+                  if (state is AuthLoadingState) {
                     return CircularProgressIndicator(color: Colors.white);
                   }
                   return Column(
@@ -58,17 +58,17 @@ class SignupScreen extends StatelessWidget {
                             children: [
                               CustomTextField(
                                 controller: _usernameController,
-                                label: 'UserName',
+                                label: AppLocalizations.of(context).username,
                               ),
                               SizedBox(height: 16),
                               CustomTextField(
                                 controller: _passwordController,
-                                label: 'Password',
+                                label: AppLocalizations.of(context).password,
                                 obscureText: true,
                               ),
                               SizedBox(height: 24),
                               SubmitButton(
-                                text: 'Sign Up',
+                                text: AppLocalizations.of(context).signUp,
                                 onPressed: () {
                                   BlocProvider.of<AuthBloc>(context).add(
                                     AuthSignupRequested(
@@ -86,17 +86,17 @@ class SignupScreen extends StatelessWidget {
                       SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          context.go('/');
+                          context.go(AppRoutes.unauthenticatedHome);
                         },
-                        child: Text('Come back'),
+                        child: Text(AppLocalizations.of(context).comeBack),
                       ),
                       SizedBox(height: 16),
                       TextButton(
                         onPressed: () {
-                          context.go('/login');
+                          context.go(AppRoutes.login);
                         },
                         child: Text(
-                          'Already have an account? Sign in',
+                          AppLocalizations.of(context).alreadyAnAccountLogin,
                           style: TextStyle(color: Colors.white),
                         ),
                       ),

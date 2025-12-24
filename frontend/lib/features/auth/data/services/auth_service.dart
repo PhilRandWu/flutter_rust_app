@@ -1,9 +1,55 @@
+import 'dart:convert';
+
+import 'package:frontend/core/error/data_error.dart';
+import 'package:frontend/core/utils/user_agent.dart';
+import 'package:frontend/features/auth/data/errors/data_error.dart';
+import 'package:frontend/features/auth/data/storage/token_storage.dart';
+import 'package:http/http.dart' as http;
+
 class AuthService {
   final String baseUrl;
+  final TokenStorage tokenStorage;
 
-  AuthService({ required this.baseUrl });
+  AuthService({required this.baseUrl, required this.tokenStorage});
 
   Future<void> refreshToken() async {
-    // TODO
+    final refreshToken = await tokenStorage.getRefreshToken();
+
+    if (refreshToken == null) {
+      throw RefreshTokenNotFoundError();
+    }
+    final url = Uri.parse('$baseUrl/auth/refresh-token');
+    final userAgent = await getUserAgent();
+
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json', 'X-User-Agent': userAgent},
+      body: json.encode({'refresh_token': refreshToken}),
+    );
+    final jsonBody = json.decode(response.body);
+    final responseCode = jsonBody['code'] as String;
+
+    if (response.statusCode == 200) {
+      final newAccessToken = jsonBody['access_token'] as String;
+      final newRefreshToken = jsonBody['refresh_token'] as String;
+
+      await tokenStorage.saveToken(newAccessToken, newRefreshToken);
+      return;
+    }
+
+    await tokenStorage.deleteToken();
+    if (response.statusCode == 401) {
+      if (responseCode == 'REFRESH_TOKEN_EXPIRED') {
+        throw RefreshTokenExpiredError();
+      } else if (responseCode == 'INVALID_REFRESH_TOKEN') {
+        throw InvalidRefreshTokenError();
+      }
+      throw UnauthorizedError();
+    }
+
+    if (response.statusCode == 500) {
+      throw InternalServerError();
+    }
+    throw UnknownError();
   }
 }
