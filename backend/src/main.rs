@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
     let app = get_router(state.clone()).await?;
 
     let cors_layer = CorsLayer::new()
-        .allow_origin(AllowOrigin::exact("http://localhost:64195".parse()?))
+        .allow_origin(AllowOrigin::exact(state.config.cors.origin.parse()?))
         .allow_methods(AllowMethods::list([
             http::Method::GET,
             http::Method::POST,
@@ -44,6 +44,7 @@ async fn main() -> Result<()> {
             HeaderName::from_static("authorization"),
             HeaderName::from_static("x-requested-with"),
             HeaderName::from_static("accept"),
+            HeaderName::from_static("x-user-agent"),
         ]))
         .allow_credentials(true);
 

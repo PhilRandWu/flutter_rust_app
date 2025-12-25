@@ -161,6 +161,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "chrono",
+ "dotenvy",
  "jwt-simple",
  "reqwest",
  "serde",

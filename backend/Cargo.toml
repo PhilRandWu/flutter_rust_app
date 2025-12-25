@@ -22,6 +22,7 @@ tower-http = { version = "0.6.7", features = ["cors"]}
 axum-extra = { version = "0.12.2", features = ["typed-header"]}
 anyhow = "1.0.100"
 jwt-simple = "0.12.13"
+dotenvy = "0.15.7"
 
 [dev-dependencies]
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls"]}
