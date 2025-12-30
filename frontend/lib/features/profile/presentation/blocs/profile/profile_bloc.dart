@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/profile/bloc/profile/profile_events.dart';
-import 'package:frontend/features/profile/bloc/profile/profile_states.dart';
 import 'package:frontend/features/profile/domain/entities/profile.dart';
+import 'package:frontend/features/profile/presentation/blocs/profile/profile_events.dart';
+import 'package:frontend/features/profile/presentation/blocs/profile/profile_states.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(ProfileLoading()) {

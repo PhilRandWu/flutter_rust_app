@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/widgets/icon_with_warning.dart';
-import 'package:frontend/features/profile/screen/about_screen.dart';
-import 'package:frontend/features/profile/screen/device_screen.dart';
-import 'package:frontend/features/profile/screen/theme_selection_screen.dart';
+import 'package:frontend/features/profile/presentation/screens/theme_selection_screen.dart';
 import 'package:frontend/l10n/app_localizations.dart';
 
+import 'about_screen.dart';
+import 'device_screen.dart';
 import 'language_selection_screen.dart';
 
 enum SettingsOption { language, theme, devices, about }

@@ -3,8 +3,8 @@ import 'package:frontend/core/message/message.dart';
 import 'package:frontend/features/auth/data/storage/token_storage.dart';
 import 'package:frontend/features/auth/domain/usecases/login_usecase.dart';
 import 'package:frontend/features/auth/domain/usecases/signup_usecase.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_event.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_state.dart';
 import 'package:get_it/get_it.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
