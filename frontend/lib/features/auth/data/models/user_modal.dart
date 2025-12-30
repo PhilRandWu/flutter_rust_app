@@ -12,5 +12,7 @@ class UserModel extends Equatable {
         username: json['username'] as String
     );
   }
+
+  @override
   List<Object?> get props => [id, username];
 }

@@ -74,36 +74,38 @@ class AuthRemoteDataSource {
     );
 
     final jsonBody = json.decode(response.body);
-    final responseCode = jsonBody['code'] as String;
+    // final responseCode = jsonBody['code'] as String;
 
+    print('jsonBody $jsonBody');
     if (response.statusCode == 200) {
-      try {
-        if (responseCode == 'USER_LOGGED_IN_WITHOUT_OTP') {
-          return Left(UserTokenModel.fromJson(jsonBody));
-        }
-
-        if (responseCode == 'USER_LOGS_IN_WITH_OTP_ENABLED') {
-          return Right(jsonBody['user_id']);
-        }
-
-        throw ParsingError();
-      } catch (e) {
-        throw ParsingError();
-      }
+      return Left(UserTokenModel.fromJson(jsonBody));
+      // try {
+      //   if (responseCode == 'USER_LOGGED_IN_WITHOUT_OTP') {
+      //     return Left(UserTokenModel.fromJson(jsonBody));
+      //   }
+      //
+      //   if (responseCode == 'USER_LOGS_IN_WITH_OTP_ENABLED') {
+      //     return Right(jsonBody['user_id']);
+      //   }
+      //
+      //   throw ParsingError();
+      // } catch (e) {
+      //   throw ParsingError();
+      // }
     }
 
     if (response.statusCode == 401) {
-      if (responseCode == 'INVALID_USERNAME_OR_PASSWORD') {
-        throw InvalidUsernameOrPasswordError();
-      }
+      // if (responseCode == 'INVALID_USERNAME_OR_PASSWORD') {
+      //   throw InvalidUsernameOrPasswordError();
+      // }
 
       throw UnauthorizedError();
     }
 
     if (response.statusCode == 403) {
-      if (responseCode == 'PASSWORD_MUST_BE_CHANGED') {
-        throw PasswordMustBeChangedError();
-      }
+      // if (responseCode == 'PASSWORD_MUST_BE_CHANGED') {
+      //   throw PasswordMustBeChangedError();
+      // }
 
       throw ForbiddenError();
     }

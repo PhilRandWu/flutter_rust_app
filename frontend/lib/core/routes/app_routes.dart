@@ -21,14 +21,14 @@ class AppRoutes {
 
 
 final router = GoRouter(
-  // initialLocation: AppRoutes.unauthenticatedHome,
-  initialLocation: AppRoutes.home,
+  initialLocation: AppRoutes.unauthenticatedHome,
+  // initialLocation: AppRoutes.home,
   routes: [
     GoRoute(
       path: AppRoutes.unauthenticatedHome,
       builder: (context, state) => UnauthenticatedHomeScreen(),
       redirect: (context, state) {
-        if (state is AuthAuthenticated) {
+        if (state is AuthAuthenticatedState) {
           return AppRoutes.home;
         }
         return null;
@@ -38,7 +38,7 @@ final router = GoRouter(
       path: AppRoutes.login,
       builder: (context, state) => LoginScreen(),
       redirect: (context, state) {
-        if (state is AuthAuthenticated) {
+        if (state is AuthAuthenticatedState) {
           return AppRoutes.home;
         }
         return null;
@@ -48,7 +48,7 @@ final router = GoRouter(
       path: AppRoutes.signup,
       builder: (context, state) => SignupScreen(),
       redirect: (context, state) {
-        if (state is AuthAuthenticated) {
+        if (state is AuthAuthenticatedState) {
           return AppRoutes.recoveryCodes;
         }
         return null;
@@ -75,7 +75,7 @@ final router = GoRouter(
       redirect: (context, state) {
         final authState = context.read<AuthBloc>().state;
         final isGoingHome = state.fullPath != '/';
-        if (authState is AuthAuthenticated) {
+        if (authState is AuthAuthenticatedState) {
           return null;
         } else {
           return isGoingHome ? null : '/';
