@@ -1,5 +1,4 @@
-use std::fs::read_to_string;
-use std::env;
+use std::{env, fs::read_to_string};
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -10,6 +9,11 @@ pub struct ServerConfig {
 #[derive(Clone, Debug, Deserialize)]
 pub struct DatabaseConfig {
     pub db_url: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct RedisConfig {
+    pub redis_url: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -25,12 +29,15 @@ pub struct AuthConfig {
 #[derive(Clone, Debug, Deserialize)]
 pub struct CorsConfig {
     pub origin: String,
+    pub allowed_methods: Vec<String>,
+    pub allowed_headers: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct AppConfig {
     pub server: ServerConfig,
     pub database: DatabaseConfig,
+    // pub redis: Option<RedisConfig>,
     pub auth: AuthConfig,
     pub cors: CorsConfig,
 }
@@ -62,6 +69,7 @@ impl AppConfig {
             database: DatabaseConfig {
                 db_url: env::var("DATABASE_URL")?,
             },
+            // redis: env::var("REDIS_URL").ok().map(|redis_url| RedisConfig { redis_url }),
             auth: AuthConfig {
                 secret_key: env::var("JWT_SECRET_KEY")?,
                 public_key: env::var("JWT_PUBLIC_KEY")?,
@@ -76,6 +84,19 @@ impl AppConfig {
             },
             cors: CorsConfig {
                 origin: env::var("CORS_ORIGIN")?,
+                allowed_methods: env::var("CORS_ALLOWED_METHODS")
+                    .unwrap_or_else(|_| "GET,POST,PUT,DELETE,OPTIONS,PATCH".to_string())
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .collect(),
+                allowed_headers: env::var("CORS_ALLOWED_HEADERS")
+                    .unwrap_or_else(|_|
+                        "content-type,authorization,x-requested-with,accept,x-user-agent"
+                            .to_string()
+                    )
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .collect(),
             },
         })
     }

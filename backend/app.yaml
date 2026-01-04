@@ -14,3 +14,16 @@ auth:
 
 cors:
   origin: "http://localhost:51994"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+    - "PATCH"
+  allowed_headers:
+    - "content-type"
+    - "authorization"
+    - "x-requested-with"
+    - "accept"
+    - "x-user-agent"

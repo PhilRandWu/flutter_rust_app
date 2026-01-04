@@ -1,7 +1,9 @@
 use crate::AppState;
 use crate::common::error::AppError;
-use crate::modules::auth::dto::TokenRequest;
-use crate::modules::users::dto::CreateUser;
+use crate::modules::{
+  auth::dto::TokenRequest,
+  users::dto::CreateUser
+};
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use serde::Serialize;
 use tracing::info;
@@ -12,10 +14,8 @@ pub struct HealthCheckResponse {
     pub message: &'static str,
 }
 
-
-
 pub async fn signup_handler(
-    State(state): State<AppState>,
+    State(state ): State<AppState>,
     Json(payload): Json<CreateUser>,
 ) -> Result<impl IntoResponse, AppError> {
     payload.validate()?;
@@ -24,7 +24,7 @@ pub async fn signup_handler(
     Ok((StatusCode::CREATED, Json(user)))
 }
 
-pub async fn signin_handler(
+pub async fn signing_handler(
     State(state): State<AppState>,
     Json(payload): Json<TokenRequest>,
 ) -> Result<impl IntoResponse, AppError> {

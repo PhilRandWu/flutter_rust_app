@@ -1,12 +1,15 @@
-use crate::common::{config::AppConfig, error::AppError};
-use crate::modules::users::dto::User;
+use crate::{
+    common::error::AppError,
+    modules::users::dto::User,
+    AppState,
+};
 use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
-    password_hash::{SaltString, rand_core::OsRng},
 };
 use chrono::{TimeDelta, Utc};
 use jwt_simple::prelude::*;
-use std::fs::read_to_string;
+
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -38,14 +41,13 @@ pub fn verify_password(password: &str, hashed_password: &str) -> Result<bool, Ap
     Ok(is_valid)
 }
 
-pub async fn generate_tokens(user: User) -> Result<(String, String, TokenClaims, TokenClaims), AppError> {
-    let config = AppConfig::from_file("app.yaml");
-    let secret_key_pem = read_to_string(config.clone().auth.secret_key)?;
-    let key_pair = Ed25519KeyPair::from_pem(&secret_key_pem)?;
-
+pub async fn generate_tokens(
+    state: &AppState,
+    user: User,
+) -> Result<(String, String, TokenClaims, TokenClaims), AppError> {
     let now = Utc::now();
-    let access_duration = TimeDelta::seconds(config.auth.jwt_duration as i64);
-    let refresh_duration = TimeDelta::seconds(config.auth.refresh_token_duration as i64);
+    let access_duration = TimeDelta::seconds(state.config.auth.jwt_duration as i64);
+    let refresh_duration = TimeDelta::seconds(state.config.auth.refresh_token_duration as i64);
 
     let access_exp = now
         .checked_add_signed(access_duration)
@@ -59,8 +61,8 @@ pub async fn generate_tokens(user: User) -> Result<(String, String, TokenClaims,
     let access_claims = TokenClaims {
         sub: user.user_info.id.unwrap(),
         jti: jti.clone(),
-        iss: config.auth.jwt_iss.clone(),
-        aud: config.auth.jwt_aud.clone(),
+        iss: state.config.auth.jwt_iss.clone(),
+        aud: state.config.auth.jwt_aud.clone(),
         exp: access_exp.timestamp(),
         iat: now.timestamp(),
         token_type: "access".to_string(),
@@ -68,8 +70,8 @@ pub async fn generate_tokens(user: User) -> Result<(String, String, TokenClaims,
     let refresh_claims = TokenClaims {
         sub: user.user_info.id.unwrap(),
         jti: jti.clone(),
-        iss: config.auth.jwt_iss.clone(),
-        aud: config.auth.jwt_aud.clone(),
+        iss: state.config.auth.jwt_iss.clone(),
+        aud: state.config.auth.jwt_aud.clone(),
         exp: refresh_exp.timestamp(),
         iat: now.timestamp(),
         token_type: "refresh".to_string(),
@@ -77,47 +79,51 @@ pub async fn generate_tokens(user: User) -> Result<(String, String, TokenClaims,
 
     let jwt_access_claims = Claims::with_custom_claims(
         access_claims.clone(),
-        Duration::from_secs(config.auth.jwt_duration),
+        Duration::from_secs(state.config.auth.jwt_duration),
     );
 
     let jwt_refresh_claims = Claims::with_custom_claims(
         refresh_claims.clone(),
-        Duration::from_secs(config.auth.refresh_token_duration),
+        Duration::from_secs(state.config.auth.refresh_token_duration),
     );
 
-    let access_token = key_pair.sign(jwt_access_claims)?;
-    let refresh_token = key_pair.sign(jwt_refresh_claims)?;
+    let access_token = state.key_pair.sign(jwt_access_claims)?;
+    let refresh_token = state.key_pair.sign(jwt_refresh_claims)?;
 
     Ok((access_token, refresh_token, access_claims, refresh_claims))
 }
 
-pub async fn verify_access_token(token: &str) -> Result<User, AppError> {
-    let config = AppConfig::from_file("app.yaml");
-    let public_key_pem = read_to_string(config.clone().auth.public_key)?;
-    let public_key = Ed25519PublicKey::from_pem(&public_key_pem)?;
-
+pub async fn verify_access_token(state: &AppState, token: &str) -> Result<User, AppError> {
     let options = VerificationOptions {
-        allowed_issuers: Some(HashSet::from_strings(&[config.auth.jwt_iss.clone()])),
-        allowed_audiences: Some(HashSet::from_strings(&[config.auth.jwt_aud.clone()])),
+        allowed_issuers: Some(HashSet::from_strings(&[
+            state.config.auth.jwt_iss.clone()
+        ])),
+        allowed_audiences: Some(HashSet::from_strings(&[
+            state.config.auth.jwt_aud.clone()
+        ])),
         ..Default::default()
     };
 
-    let verify_claims = public_key.verify_token::<User>(token, Some(options))?;
+    let verify_claims = state
+        .public_key
+        .verify_token::<User>(token, Some(options))?;
     Ok(verify_claims.custom)
 }
 
-pub async fn verify_refresh_token(token: &str) -> Result<TokenClaims, AppError> {
-    let config = AppConfig::from_file("app.yaml");
-    let public_key_pem = read_to_string(config.clone().auth.public_key)?;
-    let public_key = Ed25519PublicKey::from_pem(&public_key_pem)?;
-
+pub async fn verify_refresh_token(state: &AppState, token: &str) -> Result<TokenClaims, AppError> {
     let options = VerificationOptions {
-        allowed_issuers: Some(HashSet::from_strings(&[config.auth.jwt_iss.clone()])),
-        allowed_audiences: Some(HashSet::from_strings(&[config.auth.jwt_aud.clone()])),
+        allowed_issuers: Some(HashSet::from_strings(&[
+            state.config.auth.jwt_iss.clone()
+        ])),
+        allowed_audiences: Some(HashSet::from_strings(&[
+            state.config.auth.jwt_aud.clone()
+        ])),
         ..Default::default()
     };
 
-    let verify_claims = public_key.verify_token::<TokenClaims>(token, Some(options))?;
+    let verify_claims = state
+        .public_key
+        .verify_token::<TokenClaims>(token, Some(options))?;
 
     if verify_claims.custom.token_type != "refresh" {
         return Err(AppError::Unauthorized(
