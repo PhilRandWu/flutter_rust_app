@@ -1,7 +1,7 @@
 pub mod dto;
-mod entity;
+pub mod entity;
 pub mod handlers;
-mod services;
+pub mod services;
 
 use crate::AppState;
 use crate::modules::users::handlers::{
@@ -15,6 +15,7 @@ pub fn users_router(state: AppState) -> Router {
         .route(
             "/{id}",
             get(get_user_handler)
+                .patch(update_user_handler)
                 .delete(delete_user_handler),
         )
         .with_state(state)

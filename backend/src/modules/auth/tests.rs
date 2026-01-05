@@ -68,7 +68,7 @@ mod integration_tests {
 
     #[tokio::test]
     #[serial]
-    async fn signin_handler_test() -> Result<()> {
+    async fn signing_handler_test() -> Result<()> {
         let (_tdb, app) = setup_test_app().await?;
 
         let listener = TcpListener::bind("127.0.0.1:0").await?;

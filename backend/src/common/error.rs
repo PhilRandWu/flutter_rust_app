@@ -4,6 +4,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::{Deserialize, Serialize};
+use std::env;
 use thiserror::Error;
 use validator::ValidationErrors;
 
@@ -47,6 +48,9 @@ pub enum AppError {
 
     #[error("user existed: {0}")]
     UserExisted(String),
+
+    #[error("cache error: {0}")]
+    CacheError(String),
 }
 
 impl From<ValidationErrors> for AppError {
@@ -75,23 +79,70 @@ pub struct ErrorOutput {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let status = match &self {
-            Self::NotFound(_) => StatusCode::NOT_FOUND,
-            Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
-            Self::Forbidden(_) => StatusCode::FORBIDDEN,
-            Self::BadRequest(_) => StatusCode::BAD_REQUEST,
-            Self::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::ValidationError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::PasswordHashError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::SqlxError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::JwtError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::PasswordError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::IOError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::UserExisted(_) => StatusCode::UNPROCESSABLE_ENTITY,
+        let is_production = env::var("RUST_ENV").unwrap_or_default() == "production";
+        
+        let (status, client_msg) = match &self {
+            // Client errors (4xx)
+            Self::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
+            Self::Unauthorized(_) => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Self::Forbidden(_) => (StatusCode::FORBIDDEN, self.to_string()),
+            Self::BadRequest(_) => (StatusCode::BAD_REQUEST, self.to_string()),
+            Self::ValidationError(_) => (StatusCode::UNPROCESSABLE_ENTITY, self.to_string()),
+            Self::PasswordError(_) => (StatusCode::UNAUTHORIZED, "Invalid credentials".to_string()),
+            Self::UserExisted(_) => (StatusCode::CONFLICT, self.to_string()),
+            Self::JwtError(_) => (StatusCode::UNAUTHORIZED, "Invalid or expired token".to_string()),
+            
+            // Server errors (5xx) - hide details in production
+            Self::InternalServerError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal server error".to_string(),
+            ),
+            Self::DatabaseError(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                if is_production {
+                    "Database error occurred".to_string()
+                } else {
+                    format!("database error: {}", msg)
+                },
+            ),
+            Self::SqlxError(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                if is_production {
+                    "Database error occurred".to_string()
+                } else {
+                    format!("sql error: {}", e)
+                },
+            ),
+            Self::PasswordHashError(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                if is_production {
+                    "Authentication error".to_string()
+                } else {
+                    format!("password hash error: {}", e)
+                },
+            ),
+            Self::IOError(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                if is_production {
+                    "Server error occurred".to_string()
+                } else {
+                    format!("io error: {}", e)
+                },
+            ),
+            Self::CacheError(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                if is_production {
+                    "Cache error occurred".to_string()
+                } else {
+                    format!("cache error: {}", msg)
+                },
+            ),
         };
 
-        (status, Json(ErrorOutput::new(self.to_string()))).into_response()
+        // Log the actual error for debugging
+        tracing::error!("Error occurred: {:?}", self);
+
+        (status, Json(ErrorOutput::new(client_msg))).into_response()
     }
 }
 
