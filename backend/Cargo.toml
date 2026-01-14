@@ -23,6 +23,9 @@ axum-extra = { version = "0.12.2", features = ["typed-header"]}
 anyhow = "1.0.100"
 jwt-simple = "0.12.13"
 dotenvy = "0.15.7"
+redis = { version = "0.27.6", features = ["tokio-comp", "connection-manager"] }
+deadpool-redis = "0.18.0"
+serde_json = "1.0.145"
 
 [dev-dependencies]
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls"]}

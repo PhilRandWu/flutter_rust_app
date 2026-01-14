@@ -1,6 +1,6 @@
-use axum::{Router, routing::get};
 use crate::AppState;
 use crate::modules::health::handlers::{health_check_handler, liveness_check, readiness_check};
+use axum::{Router, routing::get};
 
 pub mod handlers;
 

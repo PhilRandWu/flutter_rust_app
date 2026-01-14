@@ -1,10 +1,7 @@
 use crate::AppState;
-use crate::common::{
-    auth::hash_password,
-    error::AppError
-};
+use crate::common::{auth::hash_password, error::AppError};
 use crate::modules::users::{
-    dto::{PaginatedUsers, CreateUser, User, UserToken},
+    dto::{CreateUser, PaginatedUsers, User, UserToken},
     entity::UserInfo,
 };
 use chrono::Utc;

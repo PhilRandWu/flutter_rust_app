@@ -1,12 +1,12 @@
-use axum::{Router, routing::{post}};
 use crate::AppState;
 use crate::modules::auth::handlers::{signing_handler, signup_handler};
+use axum::{Router, routing::post};
 
-pub mod handlers;
-pub mod services;
 mod dto;
-mod tests;
+pub mod handlers;
 pub mod middleware;
+pub mod services;
+mod tests;
 
 pub fn auth_router(state: AppState) -> Router {
     Router::new()

@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use anyhow::Result;
-use axum::{middleware::from_fn_with_state, Router};
+use axum::{Router, middleware::from_fn_with_state};
 use jwt_simple::prelude::{Ed25519KeyPair, Ed25519PublicKey};
 use sqlx::PgPool;
 use std::{fmt, fs, ops::Deref, sync::Arc};

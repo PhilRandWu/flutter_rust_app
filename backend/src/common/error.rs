@@ -80,7 +80,7 @@ pub struct ErrorOutput {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let is_production = env::var("RUST_ENV").unwrap_or_default() == "production";
-        
+
         let (status, client_msg) = match &self {
             // Client errors (4xx)
             Self::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
@@ -90,8 +90,11 @@ impl IntoResponse for AppError {
             Self::ValidationError(_) => (StatusCode::UNPROCESSABLE_ENTITY, self.to_string()),
             Self::PasswordError(_) => (StatusCode::UNAUTHORIZED, "Invalid credentials".to_string()),
             Self::UserExisted(_) => (StatusCode::CONFLICT, self.to_string()),
-            Self::JwtError(_) => (StatusCode::UNAUTHORIZED, "Invalid or expired token".to_string()),
-            
+            Self::JwtError(_) => (
+                StatusCode::UNAUTHORIZED,
+                "Invalid or expired token".to_string(),
+            ),
+
             // Server errors (5xx) - hide details in production
             Self::InternalServerError => (
                 StatusCode::INTERNAL_SERVER_ERROR,

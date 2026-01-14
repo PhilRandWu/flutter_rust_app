@@ -1,5 +1,5 @@
-use std::{env, fs::read_to_string};
 use serde::Deserialize;
+use std::{env, fs::read_to_string};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ServerConfig {
@@ -62,9 +62,7 @@ impl AppConfig {
     fn from_env() -> Result<Self, env::VarError> {
         Ok(AppConfig {
             server: ServerConfig {
-                port: env::var("SERVER_PORT")?
-                    .parse()
-                    .unwrap_or(3009),
+                port: env::var("SERVER_PORT")?.parse().unwrap_or(3009),
             },
             database: DatabaseConfig {
                 db_url: env::var("DATABASE_URL")?,
@@ -73,12 +71,8 @@ impl AppConfig {
             auth: AuthConfig {
                 secret_key: env::var("JWT_SECRET_KEY")?,
                 public_key: env::var("JWT_PUBLIC_KEY")?,
-                jwt_duration: env::var("JWT_DURATION")?
-                    .parse()
-                    .unwrap_or(86400),
-                refresh_token_duration: env::var("JWT_REFRESH_DURATION")?
-                    .parse()
-                    .unwrap_or(604800),
+                jwt_duration: env::var("JWT_DURATION")?.parse().unwrap_or(86400),
+                refresh_token_duration: env::var("JWT_REFRESH_DURATION")?.parse().unwrap_or(604800),
                 jwt_iss: env::var("JWT_ISSUER")?,
                 jwt_aud: env::var("JWT_AUDIENCE")?,
             },
@@ -90,10 +84,10 @@ impl AppConfig {
                     .map(|s| s.trim().to_string())
                     .collect(),
                 allowed_headers: env::var("CORS_ALLOWED_HEADERS")
-                    .unwrap_or_else(|_|
+                    .unwrap_or_else(|_| {
                         "content-type,authorization,x-requested-with,accept,x-user-agent"
                             .to_string()
-                    )
+                    })
                     .split(',')
                     .map(|s| s.trim().to_string())
                     .collect(),

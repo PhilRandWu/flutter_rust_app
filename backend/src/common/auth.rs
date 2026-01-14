@@ -1,11 +1,7 @@
-use crate::{
-    common::error::AppError,
-    modules::users::dto::User,
-    AppState,
-};
+use crate::{AppState, common::error::AppError, modules::users::dto::User};
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 use chrono::{TimeDelta, Utc};
 use jwt_simple::prelude::*;
@@ -95,12 +91,8 @@ pub async fn generate_tokens(
 
 pub async fn verify_access_token(state: &AppState, token: &str) -> Result<User, AppError> {
     let options = VerificationOptions {
-        allowed_issuers: Some(HashSet::from_strings(&[
-            state.config.auth.jwt_iss.clone()
-        ])),
-        allowed_audiences: Some(HashSet::from_strings(&[
-            state.config.auth.jwt_aud.clone()
-        ])),
+        allowed_issuers: Some(HashSet::from_strings(&[state.config.auth.jwt_iss.clone()])),
+        allowed_audiences: Some(HashSet::from_strings(&[state.config.auth.jwt_aud.clone()])),
         ..Default::default()
     };
 
@@ -112,12 +104,8 @@ pub async fn verify_access_token(state: &AppState, token: &str) -> Result<User, 
 
 pub async fn verify_refresh_token(state: &AppState, token: &str) -> Result<TokenClaims, AppError> {
     let options = VerificationOptions {
-        allowed_issuers: Some(HashSet::from_strings(&[
-            state.config.auth.jwt_iss.clone()
-        ])),
-        allowed_audiences: Some(HashSet::from_strings(&[
-            state.config.auth.jwt_aud.clone()
-        ])),
+        allowed_issuers: Some(HashSet::from_strings(&[state.config.auth.jwt_iss.clone()])),
+        allowed_audiences: Some(HashSet::from_strings(&[state.config.auth.jwt_aud.clone()])),
         ..Default::default()
     };
 
