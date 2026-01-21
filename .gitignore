@@ -44,6 +44,51 @@ app.*.map.json
 
 # Rust
 target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
 
-# Postgres
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs/
+*.log
+log/
+
+# Database
 postgres_data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Backend specific
+backend/.env
+backend/logs/
+
+# Flutter/Web specific
+frontend/web/pkg/
+frontend/.metadata
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# FVM Version Cache
+.fvm/
