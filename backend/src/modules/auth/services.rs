@@ -52,7 +52,7 @@ impl AppState {
         let user: User = sqlx::query_as(
             r#"
             SELECT
-                id, username, password, otp_enabled, otp_verified,
+                id, username, password, email, avatar, otp_enabled, otp_verified,
                 otp_base32, otp_auth_url, created_at, updated_at
             FROM users
             WHERE id = $1
@@ -84,6 +84,22 @@ impl AppState {
             &new_refresh_token,
             new_claims.exp,
         ))
+    }
+
+    pub async fn logout(&self, refresh_token: &str) -> Result<(), AppError> {
+        let refresh_claims = verify_refresh_token(self, refresh_token).await?;
+        
+        let result = sqlx::query("DELETE FROM user_tokens WHERE token_id = $1")
+            .bind(&refresh_claims.jti)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| AppError::DatabaseError(format!("delete token: {}", e)))?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::NotFound("Token not found or already expired".to_string()));
+        }
+
+        Ok(())
     }
 
     pub async fn verify_user(&self, username: &str, password: &str) -> Result<User, AppError> {

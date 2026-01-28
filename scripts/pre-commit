@@ -1,0 +1,47 @@
+#!/bin/bash
+# Git pre-commit hook for Flutter + Rust project
+
+echo "🔍 运行预提交检查..."
+
+# 检查是否有未提交的更改
+if ! git diff --cached --quiet; then
+    echo "⚠️  检测到暂存的更改，继续检查..."
+fi
+
+# 运行Rust代码检查
+echo "🔧 检查Rust代码..."
+cd backend || exit 1
+if ! cargo check --quiet; then
+    echo "❌ Rust代码检查失败"
+    exit 1
+fi
+
+if ! cargo clippy -- -D warnings --quiet; then
+    echo "❌ Rust代码lint失败"
+    exit 1
+fi
+
+# 运行Flutter代码检查
+echo "🔧 检查Flutter代码..."
+cd ../frontend || exit 1
+if ! fvm flutter analyze --quiet; then
+    echo "❌ Flutter代码分析失败"
+    exit 1
+fi
+
+# 运行测试
+echo "🧪 运行测试..."
+cd ../backend || exit 1
+if ! cargo test --quiet; then
+    echo "❌ Rust测试失败"
+    exit 1
+fi
+
+cd ../frontend || exit 1
+if ! fvm flutter test --quiet; then
+    echo "❌ Flutter测试失败"
+    exit 1
+fi
+
+echo "✅ 所有检查通过！"
+exit 0

@@ -47,3 +47,22 @@ impl Default for TokenResponse {
         }
     }
 }
+
+#[derive(Debug, Deserialize, Serialize, Validate)]
+pub struct LogoutRequest {
+    #[validate(length(min = 1))]
+    pub refresh_token: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LogoutResponse {
+    pub message: String,
+}
+
+impl LogoutResponse {
+    pub fn new() -> Self {
+        Self {
+            message: "Logged out successfully".to_string(),
+        }
+    }
+}
