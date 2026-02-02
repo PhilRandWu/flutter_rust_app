@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 /// 应用通用样式配置类
@@ -22,11 +20,7 @@ class AppThemeStyles {
 
   const AppThemeStyles({
     this.cardShadow = const [
-      BoxShadow(
-        color: Color(0x1F000000),
-        offset: Offset(0, 8),
-        blurRadius: 23,
-      ),
+      BoxShadow(color: Color(0x1F000000), offset: Offset(0, 8), blurRadius: 23),
     ],
     this.buttonSmall = const ButtonStyle(
       minimumSize: WidgetStatePropertyAll(Size.zero),

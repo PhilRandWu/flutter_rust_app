@@ -10,7 +10,7 @@ class ParsedDeviceInfo {
     required this.os,
     required this.browser,
     required this.appVersion,
-    required this.model
+    required this.model,
   });
 }
 
@@ -22,6 +22,6 @@ class Device {
   Device({
     required this.tokenId,
     required this.parsedDeviceInfo,
-    required this.lastActivityDate
+    required this.lastActivityDate,
   });
 }

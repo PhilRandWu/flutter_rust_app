@@ -12,7 +12,6 @@ class SuccessMessage extends Message {
   SuccessMessage(this.messageKey);
 }
 
-
 class InfoMessage extends Message {
   final String messageKey;
 

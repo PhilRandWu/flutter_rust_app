@@ -28,7 +28,8 @@ Future<String> getUserAgent() async {
     return _cachedUserAgent!;
   } catch (e, stackTrace) {
     debugPrint('获取UserAgent失败：$e，堆栈：$stackTrace');
-    final fallbackUA = 'appVersion=$appVersion; os=${_getOsName()}; isMobile=${_isMobilePlatform()}; error=fetch_failed';
+    final fallbackUA =
+        'appVersion=$appVersion; os=${_getOsName()}; isMobile=${_isMobilePlatform()}; error=fetch_failed';
     _cachedUserAgent = fallbackUA;
     return fallbackUA;
   }
@@ -47,7 +48,9 @@ bool _isMobilePlatform() {
 String _getPlatformType() {
   if (kIsWeb) return 'browser';
   if (Platform.isAndroid || Platform.isIOS) return 'mobile';
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) return 'desktop';
+  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+    return 'desktop';
+  }
   return 'unknown';
 }
 
@@ -79,9 +82,9 @@ Future<String> _getOsVersion(DeviceInfoPlugin deviceInfo) async {
 }
 
 Future<void> _fillPlatformSpecificInfo(
-    DeviceInfoPlugin deviceInfo,
-    Map<String, dynamic> userAgentData,
-    ) async {
+  DeviceInfoPlugin deviceInfo,
+  Map<String, dynamic> userAgentData,
+) async {
   if (kIsWeb) {
     final webInfo = await deviceInfo.webBrowserInfo;
     userAgentData['browser'] = webInfo.browserName.name.toLowerCase();
@@ -106,10 +109,15 @@ Future<void> _fillPlatformSpecificInfo(
 }
 
 String _buildUserAgentString(Map<String, dynamic> data) {
-  final validEntries = data.entries.where((entry) => entry.value != null && entry.value.toString().isNotEmpty);
+  final validEntries = data.entries.where(
+    (entry) => entry.value != null && entry.value.toString().isNotEmpty,
+  );
 
   return validEntries
-      .map((entry) => '${entry.key}=${entry.value.toString().replaceAll(';', '_')}')
+      .map(
+        (entry) =>
+            '${entry.key}=${entry.value.toString().replaceAll(';', '_')}',
+      )
       .join('; ');
 }
 

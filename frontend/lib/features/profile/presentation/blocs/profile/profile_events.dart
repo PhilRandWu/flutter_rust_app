@@ -26,3 +26,12 @@ class ProfileUpdateLocaleEvent extends ProfileEvent {
   @override
   List<Object> get props => [locale];
 }
+
+class ProfileSetPasswordEvent extends ProfileEvent {
+  final String newPassword;
+
+  const ProfileSetPasswordEvent({required this.newPassword});
+
+  @override
+  List<Object?> get props => [newPassword];
+}

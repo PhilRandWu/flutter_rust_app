@@ -8,8 +8,8 @@ class UserModel extends Equatable {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-        id: json['id'] as String,
-        username: json['username'] as String
+      id: json['id'] as String,
+      username: json['username'] as String,
     );
   }
 

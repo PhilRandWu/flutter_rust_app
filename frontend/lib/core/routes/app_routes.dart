@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/presentation/root_screen.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
-import 'package:frontend/features/auth/presentation/screen/login_screen.dart';
-import 'package:frontend/features/auth/presentation/screen/signup_screen.dart';
-import 'package:frontend/features/auth/presentation/screen/unauthenticated_home_screen.dart';
-import 'package:frontend/features/profile/screen/profile_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/presentation/root_screen.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_bloc.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_state.dart';
+import 'package:frontend/features/auth/presentation/screens/login_screen.dart';
+import 'package:frontend/features/auth/presentation/screens/signup_screen.dart';
+import 'package:frontend/features/profile/presentation/screens/profile_screen.dart';
+import 'package:frontend/features/auth/presentation/screens/unauthenticated_home_screen.dart';
 
 class AppRoutes {
   static const String unauthenticatedHome = '/';
@@ -18,7 +18,6 @@ class AppRoutes {
   static const String home = '/home';
   static const String profile = '/profile';
 }
-
 
 final router = GoRouter(
   initialLocation: AppRoutes.unauthenticatedHome,

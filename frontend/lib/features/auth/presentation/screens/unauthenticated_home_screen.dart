@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/routes/app_routes.dart';
 import 'package:frontend/core/ui/extensions.dart';
 import 'package:frontend/core/widgets/app_logo.dart';
-import 'package:frontend/core/widgets/global_snack_bar.dart' show GlobalSnackBar;
+import 'package:frontend/core/widgets/global_snack_bar.dart'
+    show GlobalSnackBar;
 import 'package:frontend/features/auth/presentation/blocs/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/blocs/auth_state.dart';
 import 'package:frontend/features/auth/presentation/widgets/background.dart';
@@ -91,7 +92,7 @@ class UnauthenticatedHomeScreen extends StatelessWidget {
             context.go(AppRoutes.signup);
           },
           style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(context.colors.secondary)
+            backgroundColor: WidgetStatePropertyAll(context.colors.secondary),
           ),
           child: Text(AppLocalizations.of(context).signUp),
         ),

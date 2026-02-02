@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/routes/app_routes.dart';
 import 'package:frontend/core/ui/themes/dark.dart';
 import 'package:frontend/core/ui/themes/light.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
-import 'package:frontend/features/profile/bloc/profile/profile_bloc.dart';
-import 'package:frontend/features/profile/bloc/profile/profile_states.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_bloc.dart';
+import 'package:frontend/features/auth/presentation/blocs/auth_event.dart';
+import 'package:frontend/features/profile/presentation/blocs/profile/profile_bloc.dart';
+import 'package:frontend/features/profile/presentation/blocs/profile/profile_states.dart';
 import 'package:frontend/l10n/app_localizations.dart';
 
 class MyApp extends StatelessWidget {

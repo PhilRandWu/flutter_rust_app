@@ -8,9 +8,7 @@ class AppLogo extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       // children: [Image.asset('', width: 80, height: 80)],
-      children: [
-        Text('logo png')
-      ],
+      children: [Text('logo png')],
     );
   }
 }

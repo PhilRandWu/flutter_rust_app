@@ -88,7 +88,7 @@ class DeviceScreen extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                "${AppLocalizations.of(context).lastActivityDate} ${device.lastActivityDate != null ? DateFormat.yMMMMEEEEd(state.profile.locale).add_Hm().format(device.lastActivityDate!) : AppLocalizations.of(context)!.unknown}",
+                "${AppLocalizations.of(context).lastActivityDate} ${device.lastActivityDate != null ? DateFormat.yMMMMEEEEd(state.profile.locale).add_Hm().format(device.lastActivityDate!) : AppLocalizations.of(context).unknown}",
               ),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
