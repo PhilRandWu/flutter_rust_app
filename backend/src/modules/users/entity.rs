@@ -9,12 +9,36 @@ pub struct UserInfo {
     pub username: String,
     #[serde(skip)]
     pub password: String,
-
-    pub otp_enabled: Option<bool>,
-    pub otp_verified: Option<bool>,
-    pub otp_base32: Option<String>,
-    pub otp_auth_url: Option<String>,
+    pub email: String,
+    pub avatar: Option<String>,
+    pub is_deleted: bool,
 
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Clone, Debug, Deserialize, FromRow, Serialize, Type)]
+pub struct UserOtp {
+    pub user_id: Uuid,
+    pub otp_verified: bool,
+    pub otp_base32: String,
+    pub otp_auth_url: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Deserialize, FromRow, Serialize, Type)]
+pub struct Role {
+    pub id: i32,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Deserialize, FromRow, Serialize, Type)]
+pub struct UserRole {
+    pub user_id: Uuid,
+    pub role_id: i32,
+    pub created_at: DateTime<Utc>,
 }
