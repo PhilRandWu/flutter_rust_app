@@ -42,6 +42,25 @@ pub struct ReadinessResponse {
     pub uptime_seconds: u64,
 }
 
+/// General health check
+/// 
+/// ## HTTP Method
+/// GET
+/// 
+/// ## Path
+/// /health
+/// 
+/// ## Response
+/// - **200 OK** - Server is healthy
+///   ```json
+///   {
+///     "status": "healthy",
+///     "timestamp": "datetime",
+///     "uptime_seconds": 3600,
+///     "version": "1.0.0"
+///   }
+///   ```
+/// - **500 Internal Server Error** - Server error
 pub async fn health_check_handler(State(_state): State<AppState>) -> impl IntoResponse {
     info!("Health check endpoint accessed");
 
@@ -55,6 +74,22 @@ pub async fn health_check_handler(State(_state): State<AppState>) -> impl IntoRe
     (StatusCode::OK, Json(response))
 }
 
+/// Liveness check
+/// 
+/// ## HTTP Method
+/// GET
+/// 
+/// ## Path
+/// /health/live
+/// 
+/// ## Response
+/// - **200 OK** - Server process is alive
+///   ```json
+///   {
+///     "status": "alive",
+///     "timestamp": "datetime"
+///   }
+///   ```
 pub async fn liveness_check(State(_state): State<AppState>) -> impl IntoResponse {
     info!("Liveness check endpoint accessed");
 
@@ -66,6 +101,39 @@ pub async fn liveness_check(State(_state): State<AppState>) -> impl IntoResponse
     (StatusCode::OK, Json(response))
 }
 
+/// Readiness check
+/// 
+/// ## HTTP Method
+/// GET
+/// 
+/// ## Path
+/// /health/ready
+/// 
+/// ## Response
+/// - **200 OK** - Server is ready to accept requests
+///   ```json
+///   {
+///     "status": "ready",
+///     "timestamp": "datetime",
+///     "database": {
+///       "status": "healthy",
+///       "response_time_as": 100
+///     },
+///     "uptime_seconds": 3600
+///   }
+///   ```
+/// - **503 Service Unavailable** - Server is not ready
+///   ```json
+///   {
+///     "status": "not_ready",
+///     "timestamp": "datetime",
+///     "database": {
+///       "status": "unhealthy",
+///       "response_time_as": 100
+///     },
+///     "uptime_seconds": 3600
+///   }
+///   ```
 pub async fn readiness_check(State(state): State<AppState>) -> Result<impl IntoResponse, AppError> {
     info!("Readiness check endpoint accessed");
     let db_start = Instant::now();

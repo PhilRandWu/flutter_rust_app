@@ -17,33 +17,42 @@ Base URL: `http://localhost:3009`
 
 Create a new user account.
 
-**Endpoint:** `POST /auth/register`
+**Endpoint:** `POST /auth/signup`
 
 **Request Body:**
 ```json
 {
   "username": "john_doe",
-  "password": "SecurePassword123!"
+  "password": "SecurePassword123!",
+  "email": "user@example.com",
+  "avatar": "https://example.com/avatar.jpg"
 }
 ```
 
 **Validation Rules:**
 - `username`: Required, 3-50 characters
 - `password`: Required, minimum 8 characters
+- `email`: Optional, valid email format
+- `avatar`: Optional, valid URL format
 
 **Success Response:** `201 Created`
 ```json
 {
-  "id": 1,
-  "username": "john_doe",
-  "created_at": "2024-12-25T10:30:00Z",
-  "updated_at": "2024-12-25T10:30:00Z"
+  "user_info": {
+    "id": "uuid",
+    "username": "john_doe",
+    "email": "user@example.com",
+    "avatar": "https://example.com/avatar.jpg",
+    "created_at": "2024-12-25T10:30:00Z",
+    "updated_at": "2024-12-25T10:30:00Z"
+  }
 }
 ```
 
 **Error Responses:**
-- `422 Unprocessable Entity` - Validation failed or user already exists
-- `500 Internal Server Error` - Database error
+- `400 Bad Request` - Invalid input
+- `409 Conflict` - User already exists
+- `500 Internal Server Error` - Server error
 
 ---
 
@@ -66,26 +75,27 @@ Authenticate user and receive access and refresh tokens.
 {
   "access_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...",
-  "expires_at": 1735123800
+  "expires_in": 86400
 }
 ```
 
 **Response Fields:**
 - `access_token`: JWT token for API authentication (24 hours validity)
 - `refresh_token`: Token to obtain new access token (7 days validity)
-- `expires_at`: Unix timestamp when access token expires
+- `expires_in`: Access token lifetime in seconds
 
 **Error Responses:**
-- `422 Unprocessable Entity` - Invalid username or password
-- `404 Not Found` - User not found
+- `400 Bad Request` - Invalid input
+- `401 Unauthorized` - Invalid credentials
+- `500 Internal Server Error` - Server error
 
 ---
 
-### Refresh Token
+### Logout
 
-Obtain a new access token using a refresh token.
+Invalidate refresh token and logout user.
 
-**Endpoint:** `POST /auth/refresh`
+**Endpoint:** `POST /auth/logout`
 
 **Request Body:**
 ```json
@@ -97,17 +107,14 @@ Obtain a new access token using a refresh token.
 **Success Response:** `200 OK`
 ```json
 {
-  "access_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9...",
-  "expires_at": 1735123800
+  "message": "Logout successful"
 }
 ```
 
 **Error Responses:**
-- `401 Unauthorized` - Invalid or expired refresh token
-- `404 Not Found` - User not found
-
-**Note:** The old refresh token is invalidated and a new one is issued.
+- `400 Bad Request` - Invalid input
+- `401 Unauthorized` - Invalid refresh token
+- `500 Internal Server Error` - Server error
 
 ---
 
@@ -120,6 +127,32 @@ All user endpoints require authentication via JWT token in the Authorization hea
 Authorization: Bearer <access_token>
 ```
 
+### Get Current User Profile
+
+Retrieve the profile of the authenticated user.
+
+**Endpoint:** `GET /users/me`
+
+**Success Response:** `200 OK`
+```json
+{
+  "user_info": {
+    "id": "uuid",
+    "username": "john_doe",
+    "email": "user@example.com",
+    "avatar": "https://example.com/avatar.jpg",
+    "created_at": "2024-12-25T10:30:00Z",
+    "updated_at": "2024-12-25T10:30:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `401 Unauthorized` - Invalid or missing token
+- `500 Internal Server Error` - Server error
+
+---
+
 ### Get All Users
 
 Retrieve a paginated list of users.
@@ -127,7 +160,7 @@ Retrieve a paginated list of users.
 **Endpoint:** `GET /users`
 
 **Query Parameters:**
-- `limit` (optional): Number of users per page (default: 10, max: 100)
+- `limit` (optional): Number of users per page (1-100, default: 10)
 - `offset` (optional): Number of users to skip (default: 0)
 
 **Example:** `GET /users?limit=20&offset=0`
@@ -137,16 +170,24 @@ Retrieve a paginated list of users.
 {
   "users": [
     {
-      "id": 1,
-      "username": "john_doe",
-      "created_at": "2024-12-25T10:30:00Z",
-      "updated_at": "2024-12-25T10:30:00Z"
+      "user_info": {
+        "id": "uuid",
+        "username": "john_doe",
+        "email": "user@example.com",
+        "avatar": "https://example.com/avatar.jpg",
+        "created_at": "2024-12-25T10:30:00Z",
+        "updated_at": "2024-12-25T10:30:00Z"
+      }
     },
     {
-      "id": 2,
-      "username": "jane_smith",
-      "created_at": "2024-12-25T11:00:00Z",
-      "updated_at": "2024-12-25T11:00:00Z"
+      "user_info": {
+        "id": "uuid",
+        "username": "jane_smith",
+        "email": "jane@example.com",
+        "avatar": null,
+        "created_at": "2024-12-25T11:00:00Z",
+        "updated_at": "2024-12-25T11:00:00Z"
+      }
     }
   ],
   "total_count": 42
@@ -154,36 +195,137 @@ Retrieve a paginated list of users.
 ```
 
 **Error Responses:**
-- `403 Forbidden` - Missing or invalid authentication token
-- `500 Internal Server Error` - Database error
+- `400 Bad Request` - Invalid pagination parameters
+- `401 Unauthorized` - Invalid or missing token
+- `500 Internal Server Error` - Server error
+
+---
+
+### Update Current User Profile
+
+Update the profile of the authenticated user.
+
+**Endpoint:** `PATCH /users/me`
+
+**Request Body:**
+```json
+{
+  "username": "new_username",
+  "password": "new_secure_password",
+  "email": "new_email@example.com",
+  "avatar": "https://example.com/new_avatar.jpg"
+}
+```
+
+**Validation Rules:**
+- All fields are optional
+- `username`: If provided, 3-50 characters
+- `password`: If provided, minimum 8 characters
+- `email`: If provided, valid email format
+- `avatar`: If provided, valid URL format
+
+**Success Response:** `200 OK`
+```json
+{
+  "user_info": {
+    "id": "uuid",
+    "username": "new_username",
+    "email": "new_email@example.com",
+    "avatar": "https://example.com/new_avatar.jpg",
+    "created_at": "2024-12-25T10:30:00Z",
+    "updated_at": "2024-12-25T12:00:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid input
+- `401 Unauthorized` - Invalid or missing token
+- `409 Conflict` - Username already taken
+- `500 Internal Server Error` - Server error
 
 ---
 
 ### Get User by ID
 
-Retrieve a specific user by their ID.
+Retrieve a specific user by their UUID.
 
-**Endpoint:** `GET /users/:id`
+**Endpoint:** `GET /users/{id}`
 
 **Path Parameters:**
-- `id`: User ID (integer)
+- `id`: User UUID
 
-**Example:** `GET /users/1`
+**Example:** `GET /users/123e4567-e89b-12d3-a456-426614174000`
 
 **Success Response:** `200 OK`
 ```json
 {
-  "id": 1,
-  "username": "john_doe",
-  "created_at": "2024-12-25T10:30:00Z",
-  "updated_at": "2024-12-25T10:30:00Z"
+  "user_info": {
+    "id": "uuid",
+    "username": "john_doe",
+    "email": "user@example.com",
+    "avatar": "https://example.com/avatar.jpg",
+    "created_at": "2024-12-25T10:30:00Z",
+    "updated_at": "2024-12-25T10:30:00Z"
+  }
 }
 ```
 
 **Error Responses:**
-- `403 Forbidden` - Missing or invalid authentication token
+- `400 Bad Request` - Invalid UUID format
+- `401 Unauthorized` - Invalid or missing token
 - `404 Not Found` - User not found
-- `500 Internal Server Error` - Database error
+- `500 Internal Server Error` - Server error
+
+---
+
+### Update User by ID
+
+Update a specific user's profile. Users can only update their own profile.
+
+**Endpoint:** `PATCH /users/{id}`
+
+**Path Parameters:**
+- `id`: User UUID
+
+**Request Body:**
+```json
+{
+  "username": "new_username",
+  "password": "new_secure_password",
+  "email": "new_email@example.com",
+  "avatar": "https://example.com/new_avatar.jpg"
+}
+```
+
+**Validation Rules:**
+- All fields are optional
+- `username`: If provided, 3-50 characters
+- `password`: If provided, minimum 8 characters
+- `email`: If provided, valid email format
+- `avatar`: If provided, valid URL format
+
+**Success Response:** `200 OK`
+```json
+{
+  "user_info": {
+    "id": "uuid",
+    "username": "new_username",
+    "email": "new_email@example.com",
+    "avatar": "https://example.com/new_avatar.jpg",
+    "created_at": "2024-12-25T10:30:00Z",
+    "updated_at": "2024-12-25T12:00:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid input or UUID format
+- `401 Unauthorized` - Invalid or missing token
+- `403 Forbidden` - Not authorized to update this user
+- `404 Not Found` - User not found
+- `409 Conflict` - Username already taken
+- `500 Internal Server Error` - Server error
 
 ---
 
@@ -191,30 +333,26 @@ Retrieve a specific user by their ID.
 
 Delete a user account.
 
-**Endpoint:** `DELETE /users/:id`
+**Endpoint:** `DELETE /users/{id}`
 
 **Path Parameters:**
-- `id`: User ID (integer)
+- `id`: User UUID
 
-**Example:** `DELETE /users/1`
+**Example:** `DELETE /users/123e4567-e89b-12d3-a456-426614174000`
 
 **Success Response:** `200 OK`
-```json
-{
-  "message": "User deleted successfully"
-}
-```
 
 **Error Responses:**
-- `403 Forbidden` - Missing or invalid authentication token
+- `400 Bad Request` - Invalid UUID format
+- `401 Unauthorized` - Invalid or missing token
 - `404 Not Found` - User not found
-- `500 Internal Server Error` - Database error
+- `500 Internal Server Error` - Server error
 
 ---
 
 ## Health Check
 
-### Check API Health
+### General Health Check
 
 Verify that the API server is running.
 
@@ -226,6 +364,42 @@ Verify that the API server is running.
   "status": "ok"
 }
 ```
+
+**Note:** This endpoint does not require authentication.
+
+---
+
+### Liveness Check
+
+Check if the server process is alive and responding.
+
+**Endpoint:** `GET /health/live`
+
+**Success Response:** `200 OK`
+```json
+{
+  "status": "ok"
+}
+```
+
+**Note:** This endpoint does not require authentication.
+
+---
+
+### Readiness Check
+
+Check if the server is ready to accept requests, including database connectivity.
+
+**Endpoint:** `GET /health/ready`
+
+**Success Response:** `200 OK`
+```json
+{
+  "status": "ok"
+}
+```
+
+**Error Response:** `503 Service Unavailable` - Server not ready
 
 **Note:** This endpoint does not require authentication.
 
