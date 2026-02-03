@@ -6,9 +6,9 @@ import 'core/app.dart';
 import 'core/service_locator.dart';
 
 void main() async {
-  await RustLib.init();
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
+  await RustLib.init();
   await setupServiceLocator();
   runApp(const MyApp());
 }

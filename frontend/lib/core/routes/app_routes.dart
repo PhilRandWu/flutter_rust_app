@@ -19,67 +19,74 @@ class AppRoutes {
   static const String profile = '/profile';
 }
 
-final router = GoRouter(
-  initialLocation: AppRoutes.unauthenticatedHome,
-  // initialLocation: AppRoutes.home,
-  routes: [
-    GoRoute(
-      path: AppRoutes.unauthenticatedHome,
-      builder: (context, state) => UnauthenticatedHomeScreen(),
-      redirect: (context, state) {
-        if (state is AuthAuthenticatedState) {
-          return AppRoutes.home;
-        }
-        return null;
-      },
-    ),
-    GoRoute(
-      path: AppRoutes.login,
-      builder: (context, state) => LoginScreen(),
-      redirect: (context, state) {
-        if (state is AuthAuthenticatedState) {
-          return AppRoutes.home;
-        }
-        return null;
-      },
-    ),
-    GoRoute(
-      path: AppRoutes.signup,
-      builder: (context, state) => SignupScreen(),
-      redirect: (context, state) {
-        if (state is AuthAuthenticatedState) {
-          return AppRoutes.recoveryCodes;
-        }
-        return null;
-      },
-    ),
-    GoRoute(
-      path: AppRoutes.recoveryCodes,
-      builder: (context, state) => const Text('12313'),
-    ),
+GoRouter createRouter(BuildContext context) {
+  final authBloc = context.read<AuthBloc>();
 
-    ShellRoute(
-      builder: (BuildContext context, GoRouterState state, Widget child) =>
-          RootScreen(child: child),
-      routes: [
-        GoRoute(
-          path: AppRoutes.home,
-          builder: (context, state) => Text('12313'),
-        ),
-        GoRoute(
-          path: AppRoutes.profile,
-          builder: (context, state) => ProfileScreen(),
-        ),
-      ],
-      redirect: (context, state) {
-        final authState = context.read<AuthBloc>().state;
-        final isGoingHome = state.fullPath != '/';
-        if (authState is AuthAuthenticatedState) {
+  return GoRouter(
+    initialLocation: AppRoutes.unauthenticatedHome,
+    // initialLocation: AppRoutes.home,
+    routes: [
+      ShellRoute(
+        builder: (BuildContext context, GoRouterState state, Widget child) =>
+            RootScreen(child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.home,
+            builder: (context, state) =>
+                const Scaffold(body: Center(child: Text('Home - Coming Soon'))),
+          ),
+            GoRoute(
+              path: AppRoutes.profile,
+              builder: (context, state) => ProfileScreen(),
+            ),
+        ],
+        redirect: (context, state) {
+          final authState = context.read<AuthBloc>().state;
+          if (authState is AuthUnauthenticatedState) {
+            return AppRoutes.login;
+          }
           return null;
-        } else {
-          return isGoingHome ? null : '/';
-        }
-      },
-    ),
-  ],
-);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.unauthenticatedHome,
+        builder: (context, state) => UnauthenticatedHomeScreen(),
+        redirect: (context, state) {
+          final authState = authBloc.state;
+          if (authState is AuthAuthenticatedState) {
+            return AppRoutes.home;
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => LoginScreen(),
+        redirect: (context, state) {
+          final authState = context.read<AuthBloc>().state;
+          if (authState is AuthAuthenticatedState) {
+            return AppRoutes.home;
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.signup,
+        builder: (context, state) => SignupScreen(),
+        redirect: (context, state) {
+          final authState = context.read<AuthBloc>().state;
+          if (authState is AuthAuthenticatedState) {
+            return AppRoutes.recoveryCodes;
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.recoveryCodes,
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Recovery Codes - Coming Soon')),
+        ),
+      ),
+    ],
+  );
+}

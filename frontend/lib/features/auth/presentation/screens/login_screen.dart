@@ -13,8 +13,11 @@ import 'package:frontend/features/auth/presentation/widgets/submit_button.dart';
 import 'package:frontend/features/auth/presentation/widgets/successful_login_animation.dart';
 import 'package:frontend/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/message/message.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<StatefulWidget> createState() => LoginScreenState();
 }
@@ -24,6 +27,13 @@ class LoginScreenState extends State<LoginScreen>
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isAuthenticated = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +108,11 @@ class LoginScreenState extends State<LoginScreen>
 
   Widget _buildLoginViewScreen(BuildContext context) {
     void triggerLogin() {
+      if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+        GlobalSnackBar.show(context, ErrorMessage('请填写用户名和密码'));
+        return;
+      }
+      
       BlocProvider.of<AuthBloc>(context).add(
         AuthLoginRequested(
           username: _usernameController.text,
@@ -105,42 +120,71 @@ class LoginScreenState extends State<LoginScreen>
         ),
       );
     }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(height: 100, width: 100, child: Placeholder()),
-        SizedBox(height: 40),
         Container(
+          width: double.infinity,
+          constraints: BoxConstraints(maxWidth: 420),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(width: 1.0, color: Colors.blue.shade200),
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(24.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 30,
+                offset: Offset(0, 15),
+                spreadRadius: 0,
+              ),
+            ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(30.0),
+            padding: const EdgeInsets.all(40.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text(
+                  AppLocalizations.of(context).logIn,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '欢迎回来，请登录您的账户',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32),
                 CustomTextField(
                   controller: _usernameController,
                   label: AppLocalizations.of(context).username,
+                  keyboardType: TextInputType.text,
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 CustomTextField(
                   controller: _passwordController,
                   label: AppLocalizations.of(context).password,
                   obscureText: true,
                   onFieldSubmitted: (_) => triggerLogin(),
                 ),
-                SizedBox(height: 24),
-                SubmitButton(
-                  text: AppLocalizations.of(context).logIn,
-                  onPressed: () {
-                    BlocProvider.of<AuthBloc>(context).add(
-                      AuthLoginRequested(
-                        username: _usernameController.text,
-                        password: _passwordController.text,
-                      ),
+                SizedBox(height: 32),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return SubmitButton(
+                      text: AppLocalizations.of(context).logIn,
+                      onPressed: triggerLogin,
+                      isLoading: state is AuthLoadingState,
                     );
                   },
                 ),
@@ -148,26 +192,49 @@ class LoginScreenState extends State<LoginScreen>
             ),
           ),
         ),
-        SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            context.go(AppRoutes.unauthenticatedHome);
-          },
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+        SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '还没有账户？',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
-          ),
-          child: Text(AppLocalizations.of(context).comeBack),
+            SizedBox(width: 4),
+            TextButton(
+              onPressed: () {
+                context.go(AppRoutes.signup);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              ),
+              child: Text(
+                '立即注册',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 16),
         TextButton(
           onPressed: () {
-            context.go(AppRoutes.signup);
+            context.go(AppRoutes.unauthenticatedHome);
           },
-          child: Text(
-            AppLocalizations.of(context).noAccountCreateOne,
-            style: TextStyle(color: Colors.white),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white60,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.arrow_back_ios, size: 14),
+              SizedBox(width: 4),
+              Text(AppLocalizations.of(context).comeBack),
+            ],
           ),
         ),
       ],

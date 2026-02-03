@@ -1,0 +1,134 @@
+{
+  "@@locale": "zh",
+  "alreadyAnAccountLogin": "已有账号？立即登录",
+  "about": "关于",
+  "aboutText": "本应用由 Thomas Simmer 为您提供。",
+  "cancel": "取消",
+  "changePassword": "修改密码",
+  "challenges": "挑战",
+  "confirmDeletion": "确认删除",
+  "confirmDeletionQuestion": "您确定要删除此设备上的会话吗？",
+  "comeBack": "返回",
+  "currentPassword": "当前密码",
+  "dark": "深色",
+  "defaultError": "发生错误，请重试。",
+  "delete": "删除",
+  "devices": "我的设备",
+  "deviceInfo": "{isMobile, select, true {移动设备} false {电脑} other {未知设备}}{os, select, null {。} other { 运行于 {os} 系统。 }}{browser, select, null {客户端应用} other {浏览器：{browser}}}{model, select, null {} other { 设备型号：{model}。}}",
+  "@deviceInfo": {
+    "placeholders": {
+      "isMobile": {
+        "type": "String"
+      },
+      "os": {
+        "type": "String"
+      },
+      "browser": {
+        "type": "String"
+      },
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDeleteSuccessful": "您已成功终止此设备上的会话",
+  "disableTwoFA": "关闭",
+  "enable": "开启",
+  "enterOneTimePassword": "输入您的认证应用生成的6位验证码以完成身份验证。",
+  "enterPassword": "请输入您的密码。",
+  "enterRecoveryCode": "输入您的任意一个恢复码。",
+  "enterUsername": "请输入您的用户名。",
+  "enterValidationCode": "输入您的认证应用中的验证码。",
+  "failedToLoadProfile": "加载个人资料失败",
+  "forbiddenError": "您无权执行此操作。",
+  "generateNewQrCode": "生成新的二维码",
+  "goToTwoFASetup": "设置双因素认证",
+  "habits": "习惯",
+  "hello": "你好 {userName}",
+  "@hello": {
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "小明"
+      }
+    }
+  },
+  "home": "首页",
+  "internalServerError": "服务器内部错误，请重试。",
+  "invalidOneTimePasswordError": "一次性验证码无效，请重试。",
+  "invalidRequestError": "您的请求未被服务器接受。",
+  "invalidResponseError": "无法处理服务器返回的响应。",
+  "invalidUsernameOrCodeOrRecoveryCodeError": "用户名、一次性验证码或恢复码无效，请重试。",
+  "invalidUsernameOrPasswordError": "用户名或密码错误，请重试。",
+  "invalidUsernameOrPasswordOrRecoveryCodeError": "用户名、密码或恢复码无效，请重试。",
+  "invalidUsernameOrRecoveryCodeError": "用户名或恢复码无效，请重试。",
+  "keepRecoveryCodesSafe": "请妥善保管这些恢复码。\n如果您丢失密码或无法访问双因素认证应用，这些代码将是您找回账号的关键。",
+  "language": "语言",
+  "lastActivityDate": "最后活动时间：",
+  "light": "浅色",
+  "logIn": "登录",
+  "loginSuccessful": "您已成功登录。",
+  "logout": "退出登录",
+  "logoutSuccessful": "您已成功退出登录。",
+  "messages": "消息",
+  "newPassword": "新密码",
+  "next": "下一步",
+  "noAccountCreateOne": "还没有账号？立即创建。",
+  "noContent": "暂无内容可展示",
+  "noDevices": "暂无设备可展示",
+  "noDeviceInfo": "暂无设备信息可展示",
+  "noRecoveryCodeAvailable": "暂无可用的恢复码。",
+  "password": "密码",
+  "passwordForgotten": "忘记密码？",
+  "passwordMustBeChangedError": "您需要修改密码后才能登录。",
+  "passwordNotComplexEnough": "您的密码必须至少包含一个字母、一个数字和一个特殊字符。",
+  "passwordNotExpiredError": "您的密码尚未过期，无法通过此方式修改。",
+  "passwordTooShortError": "您的密码长度必须至少为8个字符。",
+  "passwordUpdateSuccessful": "您的密码已成功更新。",
+  "pleaseLoginOrSignUp": "请登录或注册以继续使用。",
+  "profile": "个人资料",
+  "profileSettings": "个人资料设置",
+  "profileUpdateSuccessful": "个人资料已保存。",
+  "qrCodeSecretKeyCopied": "二维码密钥已复制到剪贴板。",
+  "recoverAccount": "找回账号",
+  "recoveryCode": "恢复码",
+  "recoveryCodesCopied": "恢复码已复制到剪贴板。",
+  "refreshTokenExpiredError": "您的会话已过期，请重新登录。",
+  "regenerateQrCode": "重新生成二维码",
+  "save": "保存",
+  "selectLanguage": "选择语言",
+  "selectTheme": "选择主题",
+  "setNewPassword": "请输入您的新密码。",
+  "signUp": "注册",
+  "theme": "主题",
+  "twoFA": "双因素认证",
+  "twoFAInvitation": "安全与隐私是我们的首要任务。\n请设置双因素认证，以保护您的账号免受暴力破解攻击。",
+  "twoFAIsWellSetup": "您的账号已成功开启双因素认证。",
+  "twoFAScanQrCode": "使用您的认证应用扫描此二维码。",
+  "twoFASecretKey": "您的密钥是：{secretKey}",
+  "@twoFASecretKey": {
+    "placeholders": {
+      "secretKey": {
+        "type": "String",
+        "example": "ABC123XYZ789"
+      }
+    }
+  },
+  "twoFASetup": "开启双因素认证以保护您的账号安全。",
+  "twoFactorAuthenticationNotEnabledError": "您的账号尚未开启双因素认证。",
+  "unableToLoadRecoveryCodes": "无法加载恢复码。",
+  "unauthorizedError": "您无权执行此操作。",
+  "unknownError": "发生意外错误，请重试。",
+  "updatePassword": "请输入您的当前密码和新密码。",
+  "userAlreadyExistingError": "该用户名已被注册，请选择其他用户名。",
+  "userNotFoundError": "未找到该用户。",
+  "username": "用户名",
+  "usernameNotRespectingRulesError": "您的用户名必须遵守以下规则：\n - 以字母或数字开头和结尾\n - 允许的特殊字符为 . _ -\n - 不允许连续的特殊字符",
+  "usernameWrongSizeError": "用户名长度必须在3到20个字符之间。",
+  "validationCode": "验证码",
+  "validationCodeCorrect": "您的验证码正确！",
+  "verify": "验证",
+  "welcome": "欢迎使用 Flutter Actix 应用。",
+  "previous": "上一步",
+  "unknown": "未知"
+}

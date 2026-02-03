@@ -10,6 +10,7 @@ import 'package:frontend/features/auth/presentation/blocs/auth_event.dart';
 import 'package:frontend/features/profile/presentation/blocs/profile/profile_bloc.dart';
 import 'package:frontend/features/profile/presentation/blocs/profile/profile_states.dart';
 import 'package:frontend/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,11 +35,12 @@ class MyApp extends StatelessWidget {
                 ? DarkAppTheme().themeData
                 : LightAppTheme().themeData;
           }
+          final GoRouter appRouter = createRouter(context);
           return MaterialApp.router(
-            debugShowCheckedModeBanner: true, // 隐藏 Debug 横幅
+            debugShowCheckedModeBanner: false, // 隐藏 Debug 横幅
             locale: locale,
             theme: themeData,
-            routerConfig: router,
+            routerConfig: appRouter,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
           );
