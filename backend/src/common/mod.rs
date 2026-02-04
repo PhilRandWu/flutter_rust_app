@@ -1,4 +1,7 @@
 pub mod auth;
+pub mod cache;
 pub mod config;
 pub mod error;
-// pub mod cache;
+
+#[cfg(test)]
+mod error_tests;

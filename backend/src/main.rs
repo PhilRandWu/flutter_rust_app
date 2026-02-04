@@ -1,12 +1,12 @@
 use anyhow::Result;
 use axum::http::{HeaderName, Method};
-use backend::{get_router, AppState};
+use backend::{AppState, get_router};
 use std::str::FromStr;
 use tokio::net::TcpListener;
 use tower_http::cors::{AllowHeaders, AllowMethods, AllowOrigin, CorsLayer};
 use tracing::info;
 use tracing_appender::rolling;
-use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
+use tracing_subscriber::{EnvFilter, Layer, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -61,4 +61,3 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
-

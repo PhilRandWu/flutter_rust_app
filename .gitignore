@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+.trae/
 
 # IntelliJ related
 *.iml
@@ -41,6 +42,29 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/frontend/android/.gradle/
+/frontend/android/build/
+/frontend/android/app/build/
+
+# iOS build artifacts
+/frontend/ios/Pods/
+/frontend/ios/.symlinks/
+/frontend/ios/DerivedData/
+/frontend/ios/Runner.xcworkspace/xcuserdata/
+/frontend/ios/Runner.xcodeproj/xcuserdata/
+
+# Flutter build artifacts
+/frontend/.flutter-plugins
+/frontend/.flutter-plugins-dependencies
+/frontend/.dart_tool/
+
+# Testing
+/coverage/
+.coverage
+
+# IDE specific
+/.idea/
+/.vscode/
 
 # Rust
 target/
@@ -48,11 +72,43 @@ Cargo.lock
 **/*.rs.bk
 *.pdb
 
-# Environment variables
+# Flutter Rust Bridge
+/frontend/lib/src/rust/
+/frontend/rust_builder/
+
+# FVM (Flutter Version Management)
+.fvm/
+
+# Build outputs
+*.apk
+*.aab
+*.ipa
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
 .env
+.env.development.local
+.env.test.local
+.env.production.local
 .env.local
-.env.*.local
-*.env
 
 # Logs
 logs/
@@ -66,29 +122,53 @@ postgres_data/
 *.sqlite3
 
 # Backend specific
-backend/.env
 backend/logs/
 
 # Flutter/Web specific
 frontend/web/pkg/
 frontend/.metadata
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+# Flutter dependencies
+/frontend/pubspec.lock
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Test driver
+/frontend/test_driver/
+
+# macOS/iOS podfiles
+/frontend/macos/Podfile.lock
+
+# Flutter Rust Bridge generated files
+/frontend/ios/Classes/
+/frontend/rust/src/frb_generated.rs
+
+# Windows build artifacts
+/frontend/windows/build/
+
+# Linux build artifacts
+/frontend/linux/build/
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
 
-# FVM Version Cache
-.fvm/
+# Log files
+logfile
+
+# Test and development files (不需要提交到版本控制)
+frontend/lib/main_simple.dart
+frontend/lib/main_test.dart
+frontend/lib/test_screen.dart
+frontend/lib/core/app_test.dart
+frontend/lib/core/routes/app_routes_test.dart
+frontend/lib/features/auth/presentation/screens/unauthenticated_home_screen_simple.dart
+
+# iOS/macOS development files
+frontend/ios/Podfile
+frontend/macos/Podfile
+
+# Build artifacts that should not be tracked
+frontend/build/web/
+frontend/build/windows/
+frontend/build/linux/
+frontend/build/macos/

@@ -54,6 +54,13 @@ Create a new user account.
 - `409 Conflict` - User already exists
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X POST http://localhost:3009/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"john_doe","password":"SecurePassword123!","email":"user@example.com","avatar":"https://example.com/avatar.jpg"}'
+```
+
 ---
 
 ### Login
@@ -89,6 +96,13 @@ Authenticate user and receive access and refresh tokens.
 - `401 Unauthorized` - Invalid credentials
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X POST http://localhost:3009/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"john_doe","password":"SecurePassword123!"}'
+```
+
 ---
 
 ### Logout
@@ -115,6 +129,13 @@ Invalidate refresh token and logout user.
 - `400 Bad Request` - Invalid input
 - `401 Unauthorized` - Invalid refresh token
 - `500 Internal Server Error` - Server error
+
+**Curl Request:**
+```bash
+curl -X POST http://localhost:3009/auth/logout \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token":"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9..."}'
+```
 
 ---
 
@@ -150,6 +171,12 @@ Retrieve the profile of the authenticated user.
 **Error Responses:**
 - `401 Unauthorized` - Invalid or missing token
 - `500 Internal Server Error` - Server error
+
+**Curl Request:**
+```bash
+curl -X GET http://localhost:3009/users/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
 
 ---
 
@@ -199,6 +226,12 @@ Retrieve a paginated list of users.
 - `401 Unauthorized` - Invalid or missing token
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X GET "http://localhost:3009/users?limit=20&offset=0" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
 ---
 
 ### Update Current User Profile
@@ -244,6 +277,14 @@ Update the profile of the authenticated user.
 - `409 Conflict` - Username already taken
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X PATCH http://localhost:3009/users/me \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"username":"new_username","password":"new_secure_password","email":"new_email@example.com","avatar":"https://example.com/new_avatar.jpg"}'
+```
+
 ---
 
 ### Get User by ID
@@ -276,6 +317,12 @@ Retrieve a specific user by their UUID.
 - `401 Unauthorized` - Invalid or missing token
 - `404 Not Found` - User not found
 - `500 Internal Server Error` - Server error
+
+**Curl Request:**
+```bash
+curl -X GET http://localhost:3009/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
 
 ---
 
@@ -327,6 +374,14 @@ Update a specific user's profile. Users can only update their own profile.
 - `409 Conflict` - Username already taken
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X PATCH http://localhost:3009/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"username":"new_username","password":"new_secure_password","email":"new_email@example.com","avatar":"https://example.com/new_avatar.jpg"}'
+```
+
 ---
 
 ### Delete User
@@ -348,6 +403,12 @@ Delete a user account.
 - `404 Not Found` - User not found
 - `500 Internal Server Error` - Server error
 
+**Curl Request:**
+```bash
+curl -X DELETE http://localhost:3009/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
 ---
 
 ## Health Check
@@ -367,6 +428,11 @@ Verify that the API server is running.
 
 **Note:** This endpoint does not require authentication.
 
+**Curl Request:**
+```bash
+curl -X GET http://localhost:3009/health
+```
+
 ---
 
 ### Liveness Check
@@ -383,6 +449,11 @@ Check if the server process is alive and responding.
 ```
 
 **Note:** This endpoint does not require authentication.
+
+**Curl Request:**
+```bash
+curl -X GET http://localhost:3009/health/live
+```
 
 ---
 
@@ -402,6 +473,11 @@ Check if the server is ready to accept requests, including database connectivity
 **Error Response:** `503 Service Unavailable` - Server not ready
 
 **Note:** This endpoint does not require authentication.
+
+**Curl Request:**
+```bash
+curl -X GET http://localhost:3009/health/ready
+```
 
 ---
 
@@ -507,27 +583,27 @@ Allowed headers: `content-type`, `authorization`, `x-requested-with`, `accept`, 
 
 **Register:**
 ```bash
-curl -X POST http://localhost:3009/auth/register \
+curl -X POST http://localhost:3009/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"username":"john_doe","password":"SecurePass123!"}'
+  -d '{"username":"john_doe","password":"SecurePassword123!","email":"user@example.com"}'
 ```
 
 **Login:**
 ```bash
 curl -X POST http://localhost:3009/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"john_doe","password":"SecurePass123!"}'
+  -d '{"username":"john_doe","password":"SecurePassword123!"}'
 ```
 
 **Get Users (with authentication):**
 ```bash
-curl -X GET http://localhost:3009/users?limit=10&offset=0 \
+curl -X GET "http://localhost:3009/users?limit=10&offset=0" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 **Delete User:**
 ```bash
-curl -X DELETE http://localhost:3009/users/1 \
+curl -X DELETE http://localhost:3009/users/123e4567-e89b-12d3-a456-426614174000 \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
