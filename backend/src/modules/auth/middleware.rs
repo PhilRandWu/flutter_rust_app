@@ -22,8 +22,8 @@ pub async fn auth_middleware(
     let req = match TypedHeader::<Authorization<Bearer>>::from_request_parts(&mut parts, &state)
         .await
     {
-        Ok(TypedHeader(Authorization(Bearer))) => {
-            let token = Bearer.token();
+        Ok(TypedHeader(Authorization(bearer))) => {
+            let token = bearer.token();
             match verify_access_token(&state, token).await {
                 Ok(user) => {
                     let mut req = Request::from_parts(parts, body);

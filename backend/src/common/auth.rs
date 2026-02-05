@@ -3,21 +3,10 @@ use argon2::{
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
-use chrono::{TimeDelta, Utc};
+use jwt_simple::claims::JWTClaims;
 use jwt_simple::prelude::*;
-
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TokenClaims {
-    pub sub: Uuid,          // 用户ID
-    pub jti: String,        // token唯一标识
-    pub iss: String,        // 签发者
-    pub aud: String,        // 受众
-    pub exp: i64,           // 过期时间
-    pub iat: i64,           // 签发时间
-    pub token_type: String, // token类型（access/refresh）
-}
 
 pub fn hash_password(password: &str) -> Result<String, AppError> {
     let salt = SaltString::generate(&mut OsRng);
@@ -37,54 +26,50 @@ pub fn verify_password(password: &str, hashed_password: &str) -> Result<bool, Ap
     Ok(is_valid)
 }
 
+// TokenClaims 结构定义
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TokenClaims {
+    pub token_type: String,
+}
+
 pub async fn generate_tokens(
     state: &AppState,
     user: User,
-) -> Result<(String, String, TokenClaims, TokenClaims), AppError> {
-    let now = Utc::now();
-    let access_duration = TimeDelta::seconds(state.config.auth.jwt_duration as i64);
-    let refresh_duration = TimeDelta::seconds(state.config.auth.refresh_token_duration as i64);
-
-    let access_exp = now
-        .checked_add_signed(access_duration)
-        .ok_or_else(|| AppError::InternalServerError)?;
-
-    let refresh_exp = now
-        .checked_add_signed(refresh_duration)
-        .ok_or_else(|| AppError::InternalServerError)?;
-
+) -> Result<
+    (
+        String,
+        String,
+        JWTClaims<TokenClaims>,
+        JWTClaims<TokenClaims>,
+    ),
+    AppError,
+> {
     let jti = Uuid::new_v4().to_string();
-    let access_claims = TokenClaims {
-        sub: user.user_info.id.unwrap(),
-        jti: jti.clone(),
-        iss: state.config.auth.jwt_iss.clone(),
-        aud: state.config.auth.jwt_aud.clone(),
-        exp: access_exp.timestamp(),
-        iat: now.timestamp(),
-        token_type: "access".to_string(),
-    };
-    let refresh_claims = TokenClaims {
-        sub: user.user_info.id.unwrap(),
-        jti: jti.clone(),
-        iss: state.config.auth.jwt_iss.clone(),
-        aud: state.config.auth.jwt_aud.clone(),
-        exp: refresh_exp.timestamp(),
-        iat: now.timestamp(),
-        token_type: "refresh".to_string(),
-    };
 
-    let jwt_access_claims = Claims::with_custom_claims(
-        access_claims.clone(),
-        Duration::from_secs(state.config.auth.jwt_duration),
-    );
+    let access_claims = Claims::with_custom_claims(
+        TokenClaims {
+            token_type: "access".to_string(),
+        },
+        jwt_simple::prelude::Duration::from_secs(state.config.auth.jwt_duration),
+    )
+    .with_subject(user.user_info.id.unwrap().to_string()) // 修复为 user.user_info.id
+    .with_jwt_id(jti.clone())
+    .with_issuer(state.config.auth.jwt_iss.clone())
+    .with_audience(state.config.auth.jwt_aud.clone());
 
-    let jwt_refresh_claims = Claims::with_custom_claims(
-        refresh_claims.clone(),
-        Duration::from_secs(state.config.auth.refresh_token_duration),
-    );
+    let refresh_claims = Claims::with_custom_claims(
+        TokenClaims {
+            token_type: "refresh".to_string(),
+        },
+        jwt_simple::prelude::Duration::from_secs(state.config.auth.refresh_token_duration),
+    )
+    .with_subject(user.user_info.id.unwrap().to_string())
+    .with_jwt_id(jti)
+    .with_issuer(state.config.auth.jwt_iss.clone())
+    .with_audience(state.config.auth.jwt_aud.clone());
 
-    let access_token = state.key_pair.sign(jwt_access_claims)?;
-    let refresh_token = state.key_pair.sign(jwt_refresh_claims)?;
+    let access_token = state.key_pair.sign(access_claims.clone())?;
+    let refresh_token = state.key_pair.sign(refresh_claims.clone())?;
 
     Ok((access_token, refresh_token, access_claims, refresh_claims))
 }
@@ -98,11 +83,47 @@ pub async fn verify_access_token(state: &AppState, token: &str) -> Result<User, 
 
     let verify_claims = state
         .public_key
-        .verify_token::<User>(token, Some(options))?;
-    Ok(verify_claims.custom)
+        .verify_token::<TokenClaims>(token, Some(options))
+        .map_err(|e| AppError::Unauthorized(format!("Invalid token: {}", e)))?;
+
+    if verify_claims.custom.token_type != "access" {
+        return Err(AppError::Unauthorized("Invalid token type".to_string()));
+    }
+
+    let user_id = verify_claims.subject.ok_or(AppError::Unauthorized(
+        "Invalid token: missing subject".to_string(),
+    ))?;
+    let user_id = Uuid::parse_str(&user_id)
+        .map_err(|_| AppError::Unauthorized("Invalid token: invalid subject".to_string()))?;
+
+    // Check if user has any valid refresh tokens
+    // If no valid refresh tokens exist, access token is considered revoked
+    let count: Option<i64> = sqlx::query_scalar(
+        r#"SELECT COUNT(*) as count
+           FROM user_tokens
+           WHERE user_id = $1 AND token_type = 'refresh' AND expires_at > NOW()"#,
+    )
+    .bind(user_id)
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|e| AppError::DatabaseError(format!("query refresh tokens: {}", e)))?;
+
+    if count.unwrap_or(0) == 0 {
+        return Err(AppError::Unauthorized("Token has been revoked".to_string()));
+    }
+
+    let user = state
+        .get_user_by_id(user_id)
+        .await
+        .map_err(|_| AppError::Unauthorized("User not found".to_string()))?;
+
+    Ok(user)
 }
 
-pub async fn verify_refresh_token(state: &AppState, token: &str) -> Result<TokenClaims, AppError> {
+pub async fn verify_refresh_token(
+    state: &AppState,
+    token: &str,
+) -> Result<JWTClaims<TokenClaims>, AppError> {
     let options = VerificationOptions {
         allowed_issuers: Some(HashSet::from_strings(&[state.config.auth.jwt_iss.clone()])),
         allowed_audiences: Some(HashSet::from_strings(&[state.config.auth.jwt_aud.clone()])),
@@ -111,12 +132,13 @@ pub async fn verify_refresh_token(state: &AppState, token: &str) -> Result<Token
 
     let verify_claims = state
         .public_key
-        .verify_token::<TokenClaims>(token, Some(options))?;
+        .verify_token::<TokenClaims>(token, Some(options))
+        .map_err(|e| AppError::Unauthorized(format!("Invalid token: {}", e)))?;
 
     if verify_claims.custom.token_type != "refresh" {
         return Err(AppError::Unauthorized(
             "Invalid refresh token type".to_string(),
         ));
     }
-    Ok(verify_claims.custom)
+    Ok(verify_claims)
 }
